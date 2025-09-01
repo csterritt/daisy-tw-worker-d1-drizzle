@@ -2,6 +2,10 @@
 
 Standard sign in, and password reset via email routes are provided.
 
+**Note:** This is the "styled" version of this project (See Styling section below).
+There is a [sibling project](https://github.com/csterritt/worker-d1-drizzle) that is unstyled. It is functionally
+identical, just with minimal styling that can be removed by deleting two files, and their references.
+
 #### Sign up modes
 
 The app can be configured to run in one of following four modes, by setting the `SIGN_UP_MODE`
@@ -30,12 +34,7 @@ npm run cf-typegen
 
 #### Styling
 
-The app uses the [Sakura](https://github.com/oxalorg/sakura) CSS theme. It's a class-free system that
-just decorates HTML elements, as a basic start to styling. You can remove it and the `normalize.css`
-file, remove loading them from `renderer.tsx`, and you'll be left with a plain HTML page.
-
-There is another git branch for this project named `tailwind-css-and-daisyui` that uses Tailwind
-CSS and DaisyUI. It is functionally identical, just styled differently.
+The app uses [Tailwind CSS](https://tailwindcss.com/) and [Daisy UI](https://daisyui.com/) for styling.
 
 #### Development quickstart
 
@@ -105,7 +104,7 @@ You'll want to use the `wrangler d1` commands to add users to the remote Cloudfl
 #### Running E2E tests
 
 1. Start the dev server in the desired mode (see Development quickstart above).
-2. Run all tests:
+2. Run all tests from the command line:
 
    ```bash
    npx playwright test
