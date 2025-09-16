@@ -31,7 +31,7 @@ const renderNotFound = () => {
             <a
               href={PATHS.ROOT}
               className='btn btn-primary'
-              data-testid='home-link'
+              data-testid='home-action'
             >
               Return Home
             </a>

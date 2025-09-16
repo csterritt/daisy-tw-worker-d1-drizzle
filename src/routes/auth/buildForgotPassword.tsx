@@ -60,7 +60,7 @@ const renderForgotPassword = () => {
               <button
                 type='submit'
                 className='btn btn-primary w-full'
-                data-testid='forgot-password-submit'
+                data-testid='forgot-password-action'
               >
                 Send Reset Link
               </button>
@@ -73,7 +73,7 @@ const renderForgotPassword = () => {
             <a
               href={PATHS.AUTH.SIGN_IN}
               className='btn btn-outline btn-secondary'
-              data-testid='back-to-sign-in-button'
+              data-testid='back-to-sign-in-action'
             >
               Back to Sign In
             </a>

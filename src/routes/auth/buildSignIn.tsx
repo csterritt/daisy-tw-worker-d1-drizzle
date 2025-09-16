@@ -87,7 +87,7 @@ const renderSignIn = (emailEntered: string) => {
             <a
               href={PATHS.AUTH.FORGOT_PASSWORD}
               className='link link-primary text-sm'
-              data-testid='forgot-password-link'
+              data-testid='forgot-password-action'
             >
               Forgot your password?
             </a>
@@ -105,7 +105,7 @@ const renderSignIn = (emailEntered: string) => {
                       : PATHS.AUTH.SIGN_UP
                   }
                   className='btn btn-outline btn-secondary'
-                  data-testid='go-to-sign-up-button'
+                  data-testid='go-to-sign-up-action'
                 >
                   {process.env.SIGN_UP_MODE === SIGN_UP_MODES.INTEREST_SIGN_UP
                     ? 'Join Waitlist'

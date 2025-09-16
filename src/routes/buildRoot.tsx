@@ -29,7 +29,7 @@ const renderRoot = () => {
             <a
               href={PATHS.PRIVATE}
               className='btn btn-primary'
-              data-testid='visit-private-link'
+              data-testid='visit-private-action'
             >
               Protected Content
             </a>

@@ -82,7 +82,7 @@ const renderResetPassword = (token: string) => {
               <button
                 type='submit'
                 className='btn btn-primary w-full'
-                data-testid='reset-password-submit'
+                data-testid='reset-password-action'
               >
                 Update Password
               </button>
@@ -128,7 +128,7 @@ const renderInvalidToken = () => {
             <a
               href={PATHS.AUTH.FORGOT_PASSWORD}
               className='btn btn-primary'
-              data-testid='request-new-reset-link'
+              data-testid='request-new-reset-action'
             >
               Request New Reset Link
             </a>

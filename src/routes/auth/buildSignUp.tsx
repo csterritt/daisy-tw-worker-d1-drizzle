@@ -90,7 +90,7 @@ const renderSignUp = (emailEntered: string) => {
               <button
                 type='submit'
                 className='btn btn-primary w-full'
-                data-testid='signup-submit'
+                data-testid='signup-action'
               >
                 Create Account
               </button>
@@ -103,7 +103,7 @@ const renderSignUp = (emailEntered: string) => {
             <a
               href={PATHS.AUTH.SIGN_IN}
               className='btn btn-outline btn-secondary'
-              data-testid='go-to-sign-in-button'
+              data-testid='go-to-sign-in-action'
             >
               Sign In Instead
             </a>

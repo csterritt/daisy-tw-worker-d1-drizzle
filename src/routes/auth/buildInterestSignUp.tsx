@@ -71,7 +71,7 @@ const renderInterestSignUp = (emailEntered: string) => {
               <button
                 type='submit'
                 className='btn btn-primary w-full'
-                data-testid='interest-submit'
+                data-testid='interest-action'
               >
                 Join Waitlist
               </button>
@@ -84,7 +84,7 @@ const renderInterestSignUp = (emailEntered: string) => {
             <a
               href={PATHS.AUTH.SIGN_IN}
               className='btn btn-outline btn-secondary'
-              data-testid='go-to-sign-in-button'
+              data-testid='go-to-sign-in-action'
             >
               Sign In Instead
             </a>

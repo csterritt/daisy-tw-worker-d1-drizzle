@@ -56,7 +56,7 @@ const renderWaitingForReset = (email: string) => {
             <a
               href={PATHS.AUTH.FORGOT_PASSWORD}
               className='btn btn-outline btn-secondary'
-              data-testid='try-again-button'
+              data-testid='try-again-action'
             >
               Send Another Reset Link
             </a>

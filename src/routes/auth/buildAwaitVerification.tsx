@@ -76,7 +76,7 @@ const renderAwaitVerification = (email?: string) => {
               <a
                 href={PATHS.AUTH.SIGN_IN}
                 className='btn btn-primary'
-                data-testid='back-to-sign-in-link'
+                data-testid='back-to-sign-in-action'
               >
                 Back to Sign In
               </a>
@@ -86,7 +86,7 @@ const renderAwaitVerification = (email?: string) => {
                   <button
                     type='submit'
                     className='btn btn-secondary'
-                    data-testid='resend-email-button'
+                    data-testid='resend-email-action'
                   >
                     Resend Email
                   </button>

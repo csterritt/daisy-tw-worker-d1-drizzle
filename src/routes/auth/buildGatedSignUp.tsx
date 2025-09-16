@@ -113,7 +113,7 @@ const renderGatedSignUp = (emailEntered: string) => {
               <button
                 type='submit'
                 className='btn btn-primary w-full'
-                data-testid='gated-signup-submit'
+                data-testid='gated-signup-action'
               >
                 Create Account
               </button>
@@ -126,7 +126,7 @@ const renderGatedSignUp = (emailEntered: string) => {
             <a
               href={PATHS.AUTH.SIGN_IN}
               className='btn btn-outline btn-secondary'
-              data-testid='go-to-sign-in-button'
+              data-testid='go-to-sign-in-action'
             >
               Sign In Instead
             </a>

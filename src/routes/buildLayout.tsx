@@ -46,7 +46,7 @@ export const useLayout = (c: Context, children: any, extraMessage?: string) => {
             <a
               href={PATHS.AUTH.SIGN_IN}
               className='btn btn-primary btn-sm mx-2'
-              data-testid='sign-in-link'
+              data-testid='sign-in-action'
             >
               Sign in
             </a>
@@ -62,7 +62,7 @@ export const useLayout = (c: Context, children: any, extraMessage?: string) => {
                 <button
                   type='submit'
                   className='btn btn-ghost btn-sm'
-                  data-testid='sign-out-link'
+                  data-testid='sign-out-action'
                 >
                   Sign out
                 </button>

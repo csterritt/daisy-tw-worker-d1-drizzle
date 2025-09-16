@@ -33,7 +33,7 @@ const renderPrivate = () => {
             <a
               href={PATHS.ROOT}
               className='btn btn-ghost'
-              data-testid='visit-home-link'
+              data-testid='visit-home-action'
             >
               Return Home
             </a>
