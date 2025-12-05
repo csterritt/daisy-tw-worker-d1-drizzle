@@ -7,6 +7,7 @@ import { logger } from 'hono/logger'
 import { csrf } from 'hono/csrf'
 import { secureHeaders } from 'hono/secure-headers'
 import { bodyLimit } from 'hono/body-limit'
+import { showRoutes } from 'hono/dev' // PRODUCTION:REMOVE
 
 import { HTML_STATUS, SIGN_UP_MODES } from './constants'
 import { renderer } from './renderer'
@@ -20,16 +21,20 @@ import { buildSignIn } from './routes/auth/buildSignIn'
 import { buildSignUp } from './routes/auth/buildSignUp'
 import { buildGatedSignUp } from './routes/auth/buildGatedSignUp'
 import { buildInterestSignUp } from './routes/auth/buildInterestSignUp'
+import { buildGatedInterestSignUp } from './routes/auth/buildGatedInterestSignUp'
 import { buildForgotPassword } from './routes/auth/buildForgotPassword'
 import { buildWaitingForReset } from './routes/auth/buildWaitingForReset'
 import { buildResetPassword } from './routes/auth/buildResetPassword'
 import { handleSignUp } from './routes/auth/handleSignUp'
 import { handleGatedSignUp } from './routes/auth/handleGatedSignUp'
 import { handleInterestSignUp } from './routes/auth/handleInterestSignUp'
+import { handleGatedInterestSignUp } from './routes/auth/handleGatedInterestSignUp'
 import { handleSignOut } from './routes/auth/handleSignOut'
 import { handleResendEmail } from './routes/auth/handleResendEmail'
 import { handleForgotPassword } from './routes/auth/handleForgotPassword'
 import { handleResetPassword } from './routes/auth/handleResetPassword'
+import { buildProfile } from './routes/profile/buildProfile'
+import { handleChangePassword } from './routes/profile/handleChangePassword'
 import {
   setupBetterAuth,
   setupBetterAuthMiddleware,
@@ -42,6 +47,54 @@ import { handleResetClock } from './routes/auth/handleResetClock' // PRODUCTION:
 import { handleSetDbFailures } from './routes/handleSetDbFailures' // PRODUCTION:REMOVE
 import { testDatabaseRouter } from './routes/test/database' // PRODUCTION:REMOVE
 import { testSignUpModeRouter } from './routes/test/sign-up-mode' // PRODUCTION:REMOVE
+import { testSmtpRouter } from './routes/test/smtp-config' // PRODUCTION:REMOVE
+
+/**
+ * Validates that all required environment variables are set
+ * Returns `false` if any required variables are missing, otherwise returns `true`
+ */
+const validateEnvironmentVariables = (): boolean => {
+  const requiredVars = [
+    'BETTER_AUTH_SECRET',
+    'CLOUDFLARE_ACCOUNT_ID',
+    'CLOUDFLARE_DATABASE_ID',
+    'CLOUDFLARE_D1_TOKEN',
+    'SIGN_UP_MODE',
+    'EMAIL_SEND_URL',
+    'EMAIL_SEND_CODE',
+  ]
+
+  const missingVars: string[] = []
+
+  for (const varName of requiredVars) {
+    if (!process.env[varName] || process.env[varName]?.trim() === '') {
+      missingVars.push(varName)
+    }
+  }
+
+  if (missingVars.length > 0) {
+    console.error('❌ ERROR: Missing required environment variables:')
+    for (const varName of missingVars) {
+      console.error(`   - ${varName}`)
+    }
+    console.error(
+      '\nPlease set these environment variables before starting the application.'
+    )
+    return false
+  }
+
+  console.log('✅ All required environment variables are set')
+  return true
+}
+
+// Validate environment variables on startup
+if (!validateEnvironmentVariables()) {
+  console.log('==============> Environment variables are not valid!')
+  console.log('==============> Environment variables are not valid!')
+  console.log('==============> Environment variables are not valid!')
+  console.log('==============> Environment variables are not valid!')
+  console.log('==============> Environment variables are not valid!')
+}
 
 const app = new Hono<{ Bindings: Bindings }>()
 
@@ -130,6 +183,11 @@ if (process.env.SIGN_UP_MODE === SIGN_UP_MODES.OPEN_SIGN_UP) {
   handleInterestSignUp(app)
   buildAwaitVerification(app)
   handleResendEmail(app)
+} else if (process.env.SIGN_UP_MODE === SIGN_UP_MODES.BOTH_SIGN_UP) {
+  buildGatedInterestSignUp(app)
+  handleGatedInterestSignUp(app)
+  buildAwaitVerification(app)
+  handleResendEmail(app)
 }
 buildForgotPassword(app)
 buildWaitingForReset(app)
@@ -138,6 +196,8 @@ buildEmailConfirmation(app)
 handleSignOut(app)
 handleForgotPassword(app)
 handleResetPassword(app)
+buildProfile(app)
+handleChangePassword(app)
 
 handleSetClock(app) // PRODUCTION:REMOVE
 handleResetClock(app) // PRODUCTION:REMOVE
@@ -146,8 +206,10 @@ handleSetDbFailures(app) // PRODUCTION:REMOVE
 // Test-only database endpoints // PRODUCTION:REMOVE
 app.route('/test/database', testDatabaseRouter) // PRODUCTION:REMOVE
 app.route('/test/sign-up-mode', testSignUpModeRouter) // PRODUCTION:REMOVE
+app.route('/test', testSmtpRouter) // PRODUCTION:REMOVE
 
 // this MUST be the last route declared!
 build404(app)
+showRoutes(app) // PRODUCTION:REMOVE
 
 export default app

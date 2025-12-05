@@ -11,13 +11,21 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { createDbClient } from '../db/client'
 import { schema } from '../db/schema'
 import { sendConfirmationEmail, sendPasswordResetEmail } from './email-service'
+import type { Bindings } from '../local-types'
+import { DURATIONS } from '../constants'
+
+let alternateOrigin = 'http://localhost:3000/' // PRODUCTION:REMOVE
+// PRODUCTION:REMOVE-NEXT-LINE
+if (process.env.ALTERNATE_ORIGIN) {
+  alternateOrigin = process.env.ALTERNATE_ORIGIN.replace(/\$/, '') // PRODUCTION:REMOVE
+} // PRODUCTION:REMOVE
 
 /**
  * Create and configure better-auth instance
  * @param env - Cloudflare environment
  * @returns Configured better-auth instance
  */
-export const createAuth = (env: any) => {
+export const createAuth = (env: Bindings) => {
   const db: D1Database = env.PROJECT_DB
   const dbClient = createDbClient(db)
 
@@ -83,11 +91,11 @@ export const createAuth = (env: any) => {
       },
     },
     session: {
-      expiresIn: 60 * 60 * 24 * 30, // 30 days
-      updateAge: 60 * 60 * 24, // 1 day
+      expiresIn: DURATIONS.THIRTY_DAYS_IN_SECONDS, // 30 days
+      updateAge: DURATIONS.ONE_DAY_IN_SECONDS, // 1 day
       cookieCache: {
         enabled: true,
-        maxAge: 60 * 5, // 5 minutes
+        maxAge: DURATIONS.FIVE_MINUTES_IN_SECONDS, // 5 minutes
       },
     },
     // Using better-auth's default ID generation
@@ -97,15 +105,15 @@ export const createAuth = (env: any) => {
     //   },
     // },
     trustedOrigins: [
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-      // Add production origins as needed
+      'http://localhost:3000', // PRODUCTION:REMOVE
+      'http://127.0.0.1:3000', // PRODUCTION:REMOVE
+      alternateOrigin, // PRODUCTION:REMOVE
+      // 'https://your-actual-origin.com', 'https://your-url.your-group.workers.dev' // PRODUCTION:UNCOMMENT
     ],
-    baseURL: 'http://localhost:3000',
+    // baseURL: 'https://your-actual-origin.com', // PRODUCTION:UNCOMMENT
+    baseURL: 'http://localhost:3000', // PRODUCTION:REMOVE
     redirectTo: '/private', // Redirect to protected page after successful sign-in
-    secret:
-      process.env.BETTER_AUTH_SECRET ||
-      'your-secret-key-change-this-in-production',
+    secret: process.env.BETTER_AUTH_SECRET,
   })
 }
 

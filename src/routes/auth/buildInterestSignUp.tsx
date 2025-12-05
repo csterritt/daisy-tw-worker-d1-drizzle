@@ -9,7 +9,7 @@
 import { Hono } from 'hono'
 import { secureHeaders } from 'hono/secure-headers'
 
-import { PATHS, STANDARD_SECURE_HEADERS } from '../../constants'
+import { PATHS, STANDARD_SECURE_HEADERS, MESSAGES } from '../../constants'
 import { Bindings } from '../../local-types'
 import { useLayout } from '../buildLayout'
 import { COOKIES } from '../../constants'
@@ -23,35 +23,29 @@ import { retrieveCookie } from '../../lib/cookie-support'
  */
 const renderInterestSignUp = (emailEntered: string) => {
   return (
-    <div
-      data-testid='interest-sign-up-page-banner'
-      className='flex justify-center'
-    >
-      <div className='card w-full max-w-md bg-base-100 shadow-xl'>
-        <div className='card-body'>
-          <h2 className='card-title text-2xl font-bold mb-4'>
-            Join the Waitlist
-          </h2>
+    <div data-testid='sign-up-page-banner'>
+      <div>
+        <div>
+          <h2>Join the Waitlist</h2>
 
-          <div className='mb-4'>
-            <p className='text-base-content/80 text-sm leading-relaxed'>
+          <div>
+            <h4>
               We're not accepting new accounts at the moment, but we'd love to
               notify you when we are! Enter your email address to join our
               waitlist.
-            </p>
+            </h4>
           </div>
 
           {/* Interest sign-up form */}
           <form
             method='post'
             action={PATHS.AUTH.INTEREST_SIGN_UP}
-            className='flex flex-col gap-4'
             aria-label='Interest sign up form'
             noValidate
           >
-            <div className='form-control w-full'>
-              <label className='label' htmlFor='interest-email'>
-                <span className='label-text'>Email Address</span>
+            <div>
+              <label htmlFor='interest-email'>
+                <span>Email Address</span>
               </label>
               <input
                 id='interest-email'
@@ -59,7 +53,6 @@ const renderInterestSignUp = (emailEntered: string) => {
                 type='email'
                 placeholder='Enter your email address'
                 required
-                className='input input-bordered w-full'
                 autoFocus
                 value={emailEntered}
                 data-testid='interest-email-input'
@@ -67,25 +60,17 @@ const renderInterestSignUp = (emailEntered: string) => {
               />
             </div>
 
-            <div className='card-actions justify-end mt-4'>
-              <button
-                type='submit'
-                className='btn btn-primary w-full'
-                data-testid='interest-action'
-              >
+            <div>
+              <button type='submit' data-testid='interest-action'>
                 Join Waitlist
               </button>
             </div>
           </form>
 
           {/* Navigation back to sign-in page */}
-          <div className='divider'>Already have an account?</div>
-          <div className='card-actions justify-center'>
-            <a
-              href={PATHS.AUTH.SIGN_IN}
-              className='btn btn-outline btn-secondary'
-              data-testid='go-to-sign-in-action'
-            >
+          <div>Already have an account?</div>
+          <div>
+            <a href={PATHS.AUTH.SIGN_IN} data-testid='go-to-sign-in-action'>
               Sign In Instead
             </a>
           </div>
@@ -110,11 +95,7 @@ export const buildInterestSignUp = (
       const user = (c as any).get('user')
       if (user) {
         console.log('Already signed in')
-        return redirectWithMessage(
-          c,
-          PATHS.PRIVATE,
-          'You are already signed in.'
-        )
+        return redirectWithMessage(c, PATHS.PRIVATE, MESSAGES.ALREADY_SIGNED_IN)
       }
 
       const emailEntered: string =

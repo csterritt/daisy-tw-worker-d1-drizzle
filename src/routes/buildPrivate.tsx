@@ -19,22 +19,22 @@ import { signedInAccess } from '../middleware/signed-in-access'
  */
 const renderPrivate = () => {
   return (
-    <div
-      data-testid='private-page-banner'
-      className='flex flex-col items-center'
-    >
-      <div className='card w-full max-w-md bg-base-100 shadow-xl mb-6'>
-        <div className='card-body'>
-          <h2 className='card-title text-2xl font-bold'>Private Area</h2>
-          <p className='py-4'>
+    <div data-testid='private-page-banner'>
+      <div>
+        <div>
+          <h2>Private Area</h2>
+          <p>
             This is a protected area that requires authentication to access.
           </p>
-          <div className='card-actions justify-center'>
-            <a
-              href={PATHS.ROOT}
-              className='btn btn-ghost'
-              data-testid='visit-home-action'
-            >
+
+          <div>
+            <a href={PATHS.PROFILE} data-testid='visit-profile-action'>
+              Go to Profile
+            </a>
+          </div>
+
+          <div>
+            <a href={PATHS.ROOT} data-testid='visit-home-action'>
               Return Home
             </a>
           </div>

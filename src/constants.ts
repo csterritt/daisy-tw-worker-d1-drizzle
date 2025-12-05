@@ -29,6 +29,9 @@ export const PATHS = {
     // Base path for Better Auth API
     API_BASE: '/api/auth',
 
+    // Auth email sign-in endpoint
+    SIGN_IN_EMAIL_API: '/api/auth/sign-in/email',
+
     // Sign in page
     SIGN_IN: '/auth/sign-in',
 
@@ -62,6 +65,9 @@ export const PATHS = {
     // Sign out
     SIGN_OUT: '/auth/sign-out',
   },
+
+  // Profile path
+  PROFILE: '/profile' as const,
 } as const
 
 // Cookie names
@@ -94,6 +100,7 @@ export const COOKIES = {
  * Sign up modes
  */
 export const SIGN_UP_MODES = {
+  BOTH_SIGN_UP: 'BOTH_SIGN_UP' as const,
   GATED_SIGN_UP: 'GATED_SIGN_UP' as const,
   INTEREST_SIGN_UP: 'INTEREST_SIGN_UP' as const,
   NO_SIGN_UP: 'NO_SIGN_UP' as const,
@@ -109,12 +116,53 @@ export const VALIDATION = {
 
   // Messages
   REQUIRED: 'This field is required',
-  EMAIL_INVALID: 'Please enter a valid email address',
+  EMAIL_INVALID: 'Please enter a valid email address.',
+  NAME_REQUIRED: 'Name is required',
+  PASSWORD_MIN_LENGTH: 'Password must be at least 8 characters long.',
+  COLLECTION_NAME_REQUIRED: 'Collection name is required.',
+} as const
+
+/**
+ * Common user-facing messages used across routes and handlers.
+ */
+export const MESSAGES = {
+  UNAUTHORIZED: 'Unauthorized',
+  INVALID_INPUT: 'Invalid input.',
+  INVALID_REQUEST_METHOD: 'Invalid request method.',
+  ALREADY_SIGNED_IN: 'You are already signed in.',
+  VERIFY_EMAIL_BEFORE_SIGN_IN:
+    'Please verify your email address before signing in. Check your email for a verification link.',
+  GENERIC_ERROR_TRY_AGAIN: 'Something went wrong. Please try again.',
+  COLLECTION_NOT_FOUND_OR_NO_PERMISSION_DELETE:
+    'Collection not found or you do not have permission to delete it.',
+  REGISTRATION_GENERIC_ERROR:
+    'Something went wrong during registration. Please try again.',
+  COLLECTION_NAME_EXISTS: 'You already have a collection with that name.',
+  RESET_PASSWORD_MESSAGE:
+    "If an account with that email exists, we've sent you a password reset link.",
+  ACCOUNT_ALREADY_EXISTS:
+    'An account with this email already exists. Please check your email for a verification link or sign in if you have already verified your account.',
+  NEW_VERIFICATION_EMAIL:
+    'A new verification email has been sent. Please check your inbox.',
+} as const
+
+export const MESSAGE_BUILDERS = {
+  passwordResetRateLimit: (remainingSeconds: number): string =>
+    `Please wait ${remainingSeconds} more second${
+      remainingSeconds !== 1 ? 's' : ''
+    } before requesting another password reset email.`,
+  verificationRateLimit: (remainingSeconds: number): string =>
+    `Please wait ${remainingSeconds} more second${
+      remainingSeconds !== 1 ? 's' : ''
+    } before requesting another verification email.`,
 } as const
 
 export const DURATIONS = {
   // EMAIL_RESEND_TIME_IN_MILLISECONDS: 30 * 1000, // PRODUCTION:UNCOMMENT
   EMAIL_RESEND_TIME_IN_MILLISECONDS: 3 * 1000, // PRODUCTION:REMOVE
+  THIRTY_DAYS_IN_SECONDS: 60 * 60 * 24 * 30,
+  ONE_DAY_IN_SECONDS: 60 * 60 * 24,
+  FIVE_MINUTES_IN_SECONDS: 60 * 5,
 }
 
 /**
@@ -133,8 +181,17 @@ export const API_URLS = {
   PUSHOVER: 'https://api.pushover.net/1/messages.json',
 }
 
+/**
+ * Security headers configuration for secureHeaders middleware
+ */
+interface SecureHeadersConfig {
+  referrerPolicy: string
+  contentSecurityPolicy: Record<string, string | string[]>
+  permissionsPolicy: Record<string, string[]>
+}
+
 // Security headers
-export const STANDARD_SECURE_HEADERS: any = {
+export const STANDARD_SECURE_HEADERS: SecureHeadersConfig = {
   referrerPolicy: 'strict-origin-when-cross-origin',
   contentSecurityPolicy: {
     // defaultSrc: ["'self'", 'https://mini-auth.example.com', 'https://mini-auth.workers.dev'], // PRODUCTION:UNCOMMENT
@@ -158,7 +215,7 @@ export const STANDARD_SECURE_HEADERS: any = {
     styleSrcAttr: ["'none'"],
     styleSrcElem: ["'self'", "'https:'"],
     upgradeInsecureRequests: [],
-    workerSrc: ["'none'"],
+    workerSrc: ["'self'"],
   },
   permissionsPolicy: {
     fullscreen: ['self'],
@@ -175,10 +232,31 @@ export const STANDARD_SECURE_HEADERS: any = {
   },
 }
 
-export const ALLOW_SCRIPTS_SECURE_HEADERS: any = {
+export const ALLOW_SCRIPTS_SECURE_HEADERS: SecureHeadersConfig = {
   ...STANDARD_SECURE_HEADERS,
   contentSecurityPolicy: {
     ...STANDARD_SECURE_HEADERS.contentSecurityPolicy,
     sandbox: ['allow-same-origin', 'allow-scripts', 'allow-forms'],
+    // Allow service worker registration script in renderer
+    scriptSrc: [
+      "'self'",
+      "'sha256-Asl+hSRidxWRtKpu19jWjIcBvpFh6jTQGDIPAHY4Ilk='",
+    ],
   },
 }
+
+/**
+ * Log message prefixes
+ */
+export const LOG_MESSAGES = {
+  DB_UPDATE_ACCOUNT_TS: 'Database error updating account timestamp:',
+  DB_GET_USER_WITH_ACCOUNT: 'Database error getting user with account:',
+  DB_VALIDATE_SIGN_UP_CODE: 'Database error validating sign-up code:',
+} as const
+
+/**
+ * Common UI text
+ */
+export const UI_TEXT = {
+  ENTER_YOUR_EMAIL: 'Enter your email',
+} as const

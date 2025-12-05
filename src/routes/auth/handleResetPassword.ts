@@ -11,8 +11,9 @@ import { secureHeaders } from 'hono/secure-headers'
 
 import { createAuth } from '../../lib/auth'
 import { redirectWithMessage, redirectWithError } from '../../lib/redirects'
-import { PATHS, STANDARD_SECURE_HEADERS } from '../../constants'
+import { MESSAGES, PATHS, STANDARD_SECURE_HEADERS } from '../../constants'
 import { Bindings } from '../../local-types'
+import { validateRequest, ResetPasswordFormSchema } from '../../lib/validators'
 
 /**
  * Attach the reset password handler to the app.
@@ -26,42 +27,22 @@ export const handleResetPassword = (
     secureHeaders(STANDARD_SECURE_HEADERS),
     async (c) => {
       try {
-        const formData = await c.req.formData()
-        const token = formData.get('token') as string
-        const password = formData.get('password') as string
-        const confirmPassword = formData.get('confirmPassword') as string
+        const body = await c.req.parseBody()
+        let [ok, data, err] = validateRequest(body, ResetPasswordFormSchema)
+        if (!ok) {
+          const commaSpot = err?.indexOf(',') ?? -1
+          if (commaSpot > -1) {
+            err = err?.substring(0, commaSpot) || 'Invalid input'
+          }
 
-        if (!token) {
-          return redirectWithError(
-            c,
-            PATHS.AUTH.FORGOT_PASSWORD,
-            'Invalid reset token. Please request a new password reset link.'
-          )
+          const tokenEntered = (body as any)?.token as string | undefined
+          const target = tokenEntered
+            ? `${PATHS.AUTH.RESET_PASSWORD}?token=${tokenEntered}`
+            : PATHS.AUTH.FORGOT_PASSWORD
+          return redirectWithError(c, target, err || MESSAGES.INVALID_INPUT)
         }
 
-        if (!password || !confirmPassword) {
-          return redirectWithError(
-            c,
-            `${PATHS.AUTH.RESET_PASSWORD}?token=${token}`,
-            'Please fill in all fields.'
-          )
-        }
-
-        if (password !== confirmPassword) {
-          return redirectWithError(
-            c,
-            `${PATHS.AUTH.RESET_PASSWORD}?token=${token}`,
-            'Passwords do not match. Please try again.'
-          )
-        }
-
-        if (password.length < 8) {
-          return redirectWithError(
-            c,
-            `${PATHS.AUTH.RESET_PASSWORD}?token=${token}`,
-            'Password must be at least 8 characters long.'
-          )
-        }
+        const { token, password } = data as any
 
         // Use better-auth to reset the password
         const auth = createAuth(c.env)

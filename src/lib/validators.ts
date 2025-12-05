@@ -7,13 +7,14 @@
  * @module lib/validators
  */
 import {
-  string,
   object,
+  string,
   safeParse,
   minLength,
   maxLength,
   pipe,
   custom,
+  optional,
   type BaseSchema,
   type BaseIssue,
   type InferOutput,
@@ -22,8 +23,11 @@ import { VALIDATION } from '../constants'
 
 // Email validation function
 const validateEmail = (value: unknown) => {
-  if (typeof value !== 'string') return false
-  return VALIDATION.EMAIL_PATTERN.test(value)
+  if (typeof value !== 'string') {
+    return false
+  }
+  const v = value.trim().toLowerCase()
+  return VALIDATION.EMAIL_PATTERN.test(v)
 }
 
 /**
@@ -34,17 +38,168 @@ const validateEmail = (value: unknown) => {
  */
 export const EmailSchema = pipe(
   string(VALIDATION.REQUIRED),
-  minLength(1, VALIDATION.REQUIRED),
+  minLength(1, VALIDATION.EMAIL_INVALID),
   maxLength(254, VALIDATION.EMAIL_INVALID),
   custom(validateEmail)
 )
 
 /**
- * Increment request schema
- * Note: Currently doesn't require any specific fields
- * but could be extended if parameters are added later
+ * Interest sign-up form schema
  */
-export const IncrementSchema = object({})
+export const InterestSignUpFormSchema = object({
+  email: EmailSchema,
+})
+
+/**
+ * Forgot password form schema
+ */
+export const ForgotPasswordFormSchema = object({
+  email: EmailSchema,
+})
+
+/**
+ * Sign-in form schema
+ */
+export const SignInSchema = object({
+  email: EmailSchema,
+  password: pipe(
+    string(VALIDATION.REQUIRED),
+    minLength(1, 'Password is required.')
+  ),
+})
+
+/**
+ * Open sign-up form schema
+ */
+export const SignUpFormSchema = object({
+  name: pipe(
+    string(VALIDATION.REQUIRED),
+    minLength(1, VALIDATION.NAME_REQUIRED),
+    maxLength(100, 'Name must be 100 characters or fewer'),
+    custom(
+      (v) => typeof v === 'string' && v.trim().length > 0,
+      VALIDATION.NAME_REQUIRED
+    )
+  ),
+  email: EmailSchema,
+  password: pipe(
+    string(VALIDATION.REQUIRED),
+    minLength(8, VALIDATION.PASSWORD_MIN_LENGTH),
+    maxLength(128, 'Password must be at most 128 characters long')
+  ),
+})
+
+/**
+ * Gated sign-up form schema
+ */
+export const GatedSignUpFormSchema = object({
+  code: pipe(
+    string(VALIDATION.REQUIRED),
+    minLength(8, 'Sign-up code must be at least 8 characters long.'),
+    maxLength(64, 'Sign-up code is too long.'),
+    custom(
+      (v) => typeof v === 'string' && v.trim().length > 0,
+      'Sign-up code is required'
+    )
+  ),
+  name: pipe(
+    string(VALIDATION.REQUIRED),
+    minLength(1, VALIDATION.NAME_REQUIRED),
+    maxLength(100, 'Name must be 100 characters or fewer'),
+    custom(
+      (v) => typeof v === 'string' && v.trim().length > 0,
+      VALIDATION.NAME_REQUIRED
+    )
+  ),
+  email: EmailSchema,
+  password: pipe(
+    string(VALIDATION.REQUIRED),
+    minLength(8, VALIDATION.PASSWORD_MIN_LENGTH),
+    maxLength(128, 'Password must be at most 128 characters long')
+  ),
+})
+
+/**
+ * Resend verification email form schema
+ */
+export const ResendEmailFormSchema = object({
+  email: EmailSchema,
+})
+
+/**
+ * Reset password form schema
+ */
+export const ResetPasswordFormSchema = pipe(
+  object({
+    token: pipe(
+      string(VALIDATION.REQUIRED),
+      minLength(
+        1,
+        'Invalid reset token. Please request a new password reset link.'
+      )
+    ),
+    password: pipe(
+      string(VALIDATION.REQUIRED),
+      minLength(8, VALIDATION.PASSWORD_MIN_LENGTH)
+    ),
+    confirmPassword: pipe(
+      string(VALIDATION.REQUIRED),
+      minLength(8, VALIDATION.PASSWORD_MIN_LENGTH)
+    ),
+  }),
+  custom((data) => {
+    const d = data as { password: string; confirmPassword: string }
+    return d && d.password === d.confirmPassword
+  }, 'Passwords do not match. Please try again.')
+)
+
+/**
+ * Change password form schema (for profile page)
+ */
+export const ChangePasswordFormSchema = pipe(
+  object({
+    currentPassword: pipe(
+      string(VALIDATION.REQUIRED),
+      minLength(1, 'Current password is required.')
+    ),
+    newPassword: pipe(
+      string(VALIDATION.REQUIRED),
+      minLength(8, VALIDATION.PASSWORD_MIN_LENGTH)
+    ),
+    confirmPassword: pipe(
+      string(VALIDATION.REQUIRED),
+      minLength(8, VALIDATION.PASSWORD_MIN_LENGTH)
+    ),
+    userInfo: optional(
+      pipe(
+        string(),
+        custom(
+          (v) =>
+            typeof v === 'string' &&
+            (v.trim() === '' ||
+              (/^\s*\d+\s*$/.test(v) && parseInt(v, 10) >= 0)),
+          'User information must be a non-negative number.'
+        )
+      )
+    ),
+  }),
+  custom((data) => {
+    const d = data as { newPassword: string; confirmPassword: string }
+    return d && d.newPassword === d.confirmPassword
+  }, 'New passwords do not match. Please try again.')
+)
+
+/**
+ * Dynamic path parameter validation schemas
+ */
+export const PathSignInValidationParamSchema = object({
+  validationSuccessful: optional(
+    pipe(
+      string(),
+      custom((v) => v === 'true', 'Invalid validation flag.')
+    )
+  ),
+})
 
 /**
  * Helper function to validate request data against a schema
@@ -73,4 +228,24 @@ export function validateRequest<
 
     return [false, null, errorMessage]
   }
+}
+
+/**
+ * Helper function to extract a string value from FormData
+ * @param formData - The FormData object
+ * @param key - The key to extract
+ * @returns The string value or empty string if not found
+ */
+export const getFormValue = (formData: FormData, key: string): string => {
+  const value = formData.get(key)
+  if (value === null || value === undefined) {
+    return ''
+  }
+
+  if (typeof value === 'string') {
+    return value
+  }
+
+  // Handle File objects (shouldn't happen for text fields, but be safe)
+  return ''
 }

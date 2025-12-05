@@ -9,12 +9,13 @@
 import { Hono } from 'hono'
 import { secureHeaders } from 'hono/secure-headers'
 
-import { PATHS, STANDARD_SECURE_HEADERS, VALIDATION } from '../../constants'
-import { Bindings } from '../../local-types'
+import { PATHS, STANDARD_SECURE_HEADERS, MESSAGES } from '../../constants'
+import { Bindings, DrizzleClient } from '../../local-types'
 import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
 import { addInterestedEmail } from '../../lib/db-access'
 import { addCookie } from '../../lib/cookie-support'
 import { COOKIES } from '../../constants'
+import { validateRequest, InterestSignUpFormSchema } from '../../lib/validators'
 
 /**
  * Attach the interest sign-up handler to the app.
@@ -33,42 +34,31 @@ export const handleInterestSignUp = (
       const user = (c as any).get('user')
       if (user) {
         console.log('Already signed in')
-        return redirectWithMessage(
-          c,
-          PATHS.PRIVATE,
-          'You are already signed in.'
-        )
+        return redirectWithMessage(c, PATHS.PRIVATE, MESSAGES.ALREADY_SIGNED_IN)
       }
 
-      // Get form data
+      // Get form data and validate
       const body = await c.req.parseBody()
-      const email = body.email as string
+      const [ok, data, err] = validateRequest(body, InterestSignUpFormSchema)
+      if (!ok) {
+        const emailEntered = (body as any)?.email as string
+        if (emailEntered) {
+          addCookie(c, COOKIES.EMAIL_ENTERED, emailEntered)
+        }
 
-      // Validate email
-      if (!email) {
-        console.log('No email provided')
         return redirectWithError(
           c,
           PATHS.AUTH.INTEREST_SIGN_UP,
-          'Email address is required.'
+          err || MESSAGES.INVALID_INPUT
         )
       }
 
-      if (!VALIDATION.EMAIL_PATTERN.test(email.trim())) {
-        console.log('Invalid email format:', email)
-        addCookie(c, COOKIES.EMAIL_ENTERED, email)
-        return redirectWithError(
-          c,
-          PATHS.AUTH.INTEREST_SIGN_UP,
-          'Please enter a valid email address.'
-        )
-      }
-
+      const email = data!.email as string
       const trimmedEmail = email.trim().toLowerCase()
       console.log('Processing interest sign-up for email:', trimmedEmail)
 
       // Get database instance
-      const db = c.get('db')
+      const db = c.get('db') as DrizzleClient
 
       try {
         console.log('🔧 About to call addInterestedEmail for:', trimmedEmail)
