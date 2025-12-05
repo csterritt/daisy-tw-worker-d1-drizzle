@@ -1,5 +1,5 @@
 {
-  "name": "worker-d1-drizzle",
+  "name": "daisy-tw-worker-d1-drizzle",
   "type": "module",
   "scripts": {
     "dev-open-sign-up": "./run-dev.sh open-sign-up",

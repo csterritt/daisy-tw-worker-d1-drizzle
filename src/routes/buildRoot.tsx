@@ -19,7 +19,7 @@ const renderRoot = () => {
   return (
     <div data-testid='startup-page-banner' className='flex justify-center'>
       <div className='card w-full max-w-md bg-base-100 shadow-xl'>
-        <div className='card-body container'>
+        <div id='container' className='card-body'>
           <h2 className='card-title text-2xl font-bold'>Welcome!</h2>
           <h3 id='heading' className='text-lg text-gray-600 mb-4'>
             Worker, D1, Drizzle Project
@@ -71,7 +71,7 @@ const renderRoot = () => {
               \`;
               
               // Insert alert before the main content
-              const mainContent = document.querySelector('.container');
+              const mainContent = document.querySelector('#container');
               if (mainContent && mainContent.parentNode) {
                 mainContent.parentNode.insertBefore(alertDiv, mainContent);
               }
@@ -96,7 +96,7 @@ export const buildRoot = (app: Hono<{ Bindings: Bindings }>): void => {
     ...ALLOW_SCRIPTS_SECURE_HEADERS,
     contentSecurityPolicy: {
       ...ALLOW_SCRIPTS_SECURE_HEADERS.contentSecurityPolicy,
-      scriptSrc: ["'sha256-ZXNCd2pGZQ/P0yKye0SdGhvwzepU6qcYgIvceOpTeMQ='"],
+      scriptSrc: ["'sha256-Ah51Kj+wllbC3bdUAw3ijksPd2PeVkgagLouTcvHSZw='"],
     },
   }
 

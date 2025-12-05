@@ -31,13 +31,11 @@ const renderInterestSignUp = (emailEntered: string) => {
           </h2>
 
           <div className='alert alert-info mb-4'>
-            <div>
-              <p>
-                We're not accepting new accounts at the moment, but we'd love to
-                notify you when we are! Enter your email address to join our
-                waitlist.
-              </p>
-            </div>
+            <p data-testid='no-new-accounts-message'>
+              We're not accepting new accounts at the moment, but we'd love to
+              notify you when we are! Enter your email address to join our
+              waitlist.
+            </p>
           </div>
 
           {/* Interest sign-up form */}
