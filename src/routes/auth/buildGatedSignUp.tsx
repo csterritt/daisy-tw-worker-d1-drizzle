@@ -28,11 +28,13 @@ import { retrieveCookie } from '../../lib/cookie-support'
  */
 const renderGatedSignUp = (emailEntered: string) => {
   return (
-    <div data-testid='sign-up-page-banner'>
-      <div>
-        <div>
-          <h2>Create Account</h2>
-          <p>A sign-up code is required to create an account.</p>
+    <div data-testid='sign-up-page-banner' className='flex justify-center'>
+      <div className='card w-full max-w-md bg-base-100 shadow-xl'>
+        <div className='card-body'>
+          <h2 className='card-title text-2xl font-bold mb-2'>Create Account</h2>
+          <p className='text-sm text-gray-600 mb-4'>
+            A sign-up code is required to create an account.
+          </p>
 
           {/* Gated sign up form */}
           <form
@@ -42,9 +44,9 @@ const renderGatedSignUp = (emailEntered: string) => {
             aria-label='Gated sign up form'
             noValidate
           >
-            <div>
-              <label htmlFor='gated-signup-code'>
-                <span>Sign-up Code *</span>
+            <div className='form-control w-full'>
+              <label className='label' htmlFor='gated-signup-code'>
+                <span className='label-text'>Sign-up Code *</span>
               </label>
               <input
                 id='gated-signup-code'
@@ -53,14 +55,15 @@ const renderGatedSignUp = (emailEntered: string) => {
                 placeholder='Enter your sign-up code'
                 required
                 autoFocus
+                className='input input-bordered w-full'
                 data-testid='gated-signup-code-input'
                 aria-label='Sign-up Code'
               />
             </div>
 
-            <div>
-              <label htmlFor='gated-signup-name'>
-                <span>Name *</span>
+            <div className='form-control w-full'>
+              <label className='label' htmlFor='gated-signup-name'>
+                <span className='label-text'>Name *</span>
               </label>
               <input
                 id='gated-signup-name'
@@ -68,14 +71,15 @@ const renderGatedSignUp = (emailEntered: string) => {
                 type='text'
                 placeholder='Enter your name'
                 required
+                className='input input-bordered w-full'
                 data-testid='gated-signup-name-input'
                 aria-label='Name'
               />
             </div>
 
-            <div>
-              <label htmlFor='gated-signup-email'>
-                <span>Email *</span>
+            <div className='form-control w-full'>
+              <label className='label' htmlFor='gated-signup-email'>
+                <span className='label-text'>Email *</span>
               </label>
               <input
                 id='gated-signup-email'
@@ -84,14 +88,15 @@ const renderGatedSignUp = (emailEntered: string) => {
                 placeholder={UI_TEXT.ENTER_YOUR_EMAIL}
                 required
                 value={emailEntered}
+                className='input input-bordered w-full'
                 data-testid='gated-signup-email-input'
                 aria-label='Email'
               />
             </div>
 
-            <div>
-              <label htmlFor='gated-signup-password'>
-                <span>Password *</span>
+            <div className='form-control w-full'>
+              <label className='label' htmlFor='gated-signup-password'>
+                <span className='label-text'>Password *</span>
               </label>
               <input
                 id='gated-signup-password'
@@ -100,22 +105,31 @@ const renderGatedSignUp = (emailEntered: string) => {
                 placeholder='Enter your password (min 8 characters)'
                 required
                 minLength={8}
+                className='input input-bordered w-full'
                 data-testid='gated-signup-password-input'
                 aria-label='Password'
               />
             </div>
 
-            <div>
-              <button type='submit' data-testid='gated-signup-action'>
+            <div className='card-actions justify-end mt-4'>
+              <button
+                type='submit'
+                className='btn btn-primary w-full'
+                data-testid='gated-signup-action'
+              >
                 Create Account
               </button>
             </div>
           </form>
 
           {/* Navigation to sign-in page */}
-          <div>Already have an account?</div>
-          <div>
-            <a href={PATHS.AUTH.SIGN_IN} data-testid='go-to-sign-in-action'>
+          <div className='divider'>Already have an account?</div>
+          <div className='card-actions justify-center'>
+            <a
+              href={PATHS.AUTH.SIGN_IN}
+              className='btn btn-outline btn-secondary'
+              data-testid='go-to-sign-in-action'
+            >
               Sign In Instead
             </a>
           </div>

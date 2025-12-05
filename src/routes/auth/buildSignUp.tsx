@@ -28,20 +28,21 @@ import { retrieveCookie } from '../../lib/cookie-support'
  */
 const renderSignUp = (emailEntered: string) => {
   return (
-    <div data-testid='sign-up-page-banner'>
-      <div>
-        <div>
-          <h2>Create Account</h2>
+    <div data-testid='sign-up-page-banner' className='flex justify-center'>
+      <div className='card w-full max-w-md bg-base-100 shadow-xl'>
+        <div className='card-body'>
+          <h2 className='card-title text-2xl font-bold mb-4'>Create Account</h2>
 
           {/* Sign up form */}
           <form
             method='post'
             action={PATHS.AUTH.SIGN_UP}
+            className='flex flex-col gap-4'
             aria-label='Sign up form'
           >
-            <div>
-              <label htmlFor='signup-name'>
-                <span>Name</span>
+            <div className='form-control w-full'>
+              <label className='label' htmlFor='signup-name'>
+                <span className='label-text'>Name</span>
               </label>
               <input
                 id='signup-name'
@@ -50,14 +51,15 @@ const renderSignUp = (emailEntered: string) => {
                 placeholder='Enter your name'
                 required
                 autoFocus
+                className='input input-bordered w-full'
                 data-testid='signup-name-input'
                 aria-label='Name'
               />
             </div>
 
-            <div>
-              <label htmlFor='signup-email'>
-                <span>Email</span>
+            <div className='form-control w-full'>
+              <label className='label' htmlFor='signup-email'>
+                <span className='label-text'>Email</span>
               </label>
               <input
                 id='signup-email'
@@ -66,14 +68,15 @@ const renderSignUp = (emailEntered: string) => {
                 placeholder={UI_TEXT.ENTER_YOUR_EMAIL}
                 required
                 value={emailEntered}
+                className='input input-bordered w-full'
                 data-testid='signup-email-input'
                 aria-label='Email'
               />
             </div>
 
-            <div>
-              <label htmlFor='signup-password'>
-                <span>Password</span>
+            <div className='form-control w-full'>
+              <label className='label' htmlFor='signup-password'>
+                <span className='label-text'>Password</span>
               </label>
               <input
                 id='signup-password'
@@ -82,22 +85,31 @@ const renderSignUp = (emailEntered: string) => {
                 placeholder='Enter your password (min 8 characters)'
                 required
                 minLength={8}
+                className='input input-bordered w-full'
                 data-testid='signup-password-input'
                 aria-label='Password'
               />
             </div>
 
-            <div>
-              <button type='submit' data-testid='signup-action'>
+            <div className='card-actions justify-end mt-4'>
+              <button
+                type='submit'
+                className='btn btn-primary w-full'
+                data-testid='signup-action'
+              >
                 Create Account
               </button>
             </div>
           </form>
 
           {/* Navigation to sign-in page */}
-          <div>Already have an account?</div>
-          <div>
-            <a href={PATHS.AUTH.SIGN_IN} data-testid='go-to-sign-in-action'>
+          <div className='divider'>Already have an account?</div>
+          <div className='card-actions justify-center'>
+            <a
+              href={PATHS.AUTH.SIGN_IN}
+              className='btn btn-outline btn-secondary'
+              data-testid='go-to-sign-in-action'
+            >
               Sign In Instead
             </a>
           </div>

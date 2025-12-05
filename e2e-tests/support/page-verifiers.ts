@@ -9,21 +9,16 @@ export const verifyOnSignInPage = async (page: Page) => {
   expect(await verifyElementExists(page, 'sign-in-page-banner')).toBe(true)
 }
 
+/**
+ * Unified sign-up page verifier - works for gated, interest, and both modes
+ */
 export const verifyOnSignUpPage = async (page: Page) => {
   expect(await verifyElementExists(page, 'sign-up-page-banner')).toBe(true)
 }
 
-export const verifyOnInterestSignUpPage = async (page: Page) => {
-  expect(await verifyElementExists(page, 'interest-sign-up-page-banner')).toBe(
-    true
-  )
-}
-
-export const verifyOnGatedSignUpPage = async (page: Page) => {
-  expect(await verifyElementExists(page, 'gated-sign-up-page-banner')).toBe(
-    true
-  )
-}
+// Aliases for backward compatibility - all use the same unified banner
+export const verifyOnInterestSignUpPage = verifyOnSignUpPage
+export const verifyOnGatedSignUpPage = verifyOnSignUpPage
 
 export const verifyOnProtectedPage = async (page: Page) => {
   expect(await verifyElementExists(page, 'private-page-banner')).toBe(true)
@@ -54,4 +49,8 @@ export const verifyOnResetPasswordPage = async (page: any) => {
 
 export const verifyOnInvalidTokenPage = async (page: any) => {
   expect(await verifyElementExists(page, 'invalid-token-page')).toBe(true)
+}
+
+export const verifyOnProfilePage = async (page: Page) => {
+  expect(await verifyElementExists(page, 'profile-page')).toBe(true)
 }

@@ -23,29 +23,34 @@ import { retrieveCookie } from '../../lib/cookie-support'
  */
 const renderInterestSignUp = (emailEntered: string) => {
   return (
-    <div data-testid='sign-up-page-banner'>
-      <div>
-        <div>
-          <h2>Join the Waitlist</h2>
+    <div data-testid='sign-up-page-banner' className='flex justify-center'>
+      <div className='card w-full max-w-md bg-base-100 shadow-xl'>
+        <div className='card-body'>
+          <h2 className='card-title text-2xl font-bold mb-4'>
+            Join the Waitlist
+          </h2>
 
-          <div>
-            <h4>
-              We're not accepting new accounts at the moment, but we'd love to
-              notify you when we are! Enter your email address to join our
-              waitlist.
-            </h4>
+          <div className='alert alert-info mb-4'>
+            <div>
+              <p>
+                We're not accepting new accounts at the moment, but we'd love to
+                notify you when we are! Enter your email address to join our
+                waitlist.
+              </p>
+            </div>
           </div>
 
           {/* Interest sign-up form */}
           <form
             method='post'
             action={PATHS.AUTH.INTEREST_SIGN_UP}
+            className='flex flex-col gap-4'
             aria-label='Interest sign up form'
             noValidate
           >
-            <div>
-              <label htmlFor='interest-email'>
-                <span>Email Address</span>
+            <div className='form-control w-full'>
+              <label className='label' htmlFor='interest-email'>
+                <span className='label-text'>Email Address</span>
               </label>
               <input
                 id='interest-email'
@@ -55,22 +60,31 @@ const renderInterestSignUp = (emailEntered: string) => {
                 required
                 autoFocus
                 value={emailEntered}
+                className='input input-bordered w-full'
                 data-testid='interest-email-input'
                 aria-label='Email'
               />
             </div>
 
-            <div>
-              <button type='submit' data-testid='interest-action'>
+            <div className='card-actions justify-end mt-4'>
+              <button
+                type='submit'
+                className='btn btn-primary w-full'
+                data-testid='interest-action'
+              >
                 Join Waitlist
               </button>
             </div>
           </form>
 
           {/* Navigation back to sign-in page */}
-          <div>Already have an account?</div>
-          <div>
-            <a href={PATHS.AUTH.SIGN_IN} data-testid='go-to-sign-in-action'>
+          <div className='divider'>Already have an account?</div>
+          <div className='card-actions justify-center'>
+            <a
+              href={PATHS.AUTH.SIGN_IN}
+              className='btn btn-outline btn-secondary'
+              data-testid='go-to-sign-in-action'
+            >
               Sign In Instead
             </a>
           </div>

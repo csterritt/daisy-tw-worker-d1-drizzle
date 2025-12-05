@@ -28,18 +28,18 @@ import { retrieveCookie } from '../../lib/cookie-support'
  */
 const renderGatedInterestSignUp = (emailEntered: string) => {
   return (
-    <div data-testid='sign-up-page-banner'>
-      <div>
-        <div>
-          <h2>Create Account</h2>
-          <p>
+    <div data-testid='sign-up-page-banner' className='flex justify-center'>
+      <div className='card w-full max-w-md bg-base-100 shadow-xl'>
+        <div className='card-body'>
+          <h2 className='card-title text-2xl font-bold mb-2'>Create Account</h2>
+          <p className='text-sm text-gray-600 mb-4'>
             Have a sign-up code? Create your account below. Otherwise, join our
             waitlist to be notified when we're accepting new accounts.
           </p>
 
           {/* Gated sign up form */}
           <div>
-            <h3>Sign Up with Code</h3>
+            <h3 className='text-lg font-semibold mb-3'>Sign Up with Code</h3>
             <form
               method='post'
               action={PATHS.AUTH.SIGN_UP}
@@ -47,9 +47,9 @@ const renderGatedInterestSignUp = (emailEntered: string) => {
               aria-label='Gated sign up form'
               noValidate
             >
-              <div>
-                <label htmlFor='gated-signup-code'>
-                  <span>Sign-up Code *</span>
+              <div className='form-control w-full'>
+                <label className='label' htmlFor='gated-signup-code'>
+                  <span className='label-text'>Sign-up Code *</span>
                 </label>
                 <input
                   id='gated-signup-code'
@@ -58,14 +58,15 @@ const renderGatedInterestSignUp = (emailEntered: string) => {
                   placeholder='Enter your sign-up code'
                   required
                   autoFocus
+                  className='input input-bordered w-full'
                   data-testid='gated-signup-code-input'
                   aria-label='Sign-up Code'
                 />
               </div>
 
-              <div>
-                <label htmlFor='gated-signup-name'>
-                  <span>Name *</span>
+              <div className='form-control w-full'>
+                <label className='label' htmlFor='gated-signup-name'>
+                  <span className='label-text'>Name *</span>
                 </label>
                 <input
                   id='gated-signup-name'
@@ -73,14 +74,15 @@ const renderGatedInterestSignUp = (emailEntered: string) => {
                   type='text'
                   placeholder='Enter your name'
                   required
+                  className='input input-bordered w-full'
                   data-testid='gated-signup-name-input'
                   aria-label='Name'
                 />
               </div>
 
-              <div>
-                <label htmlFor='gated-signup-email'>
-                  <span>Email *</span>
+              <div className='form-control w-full'>
+                <label className='label' htmlFor='gated-signup-email'>
+                  <span className='label-text'>Email *</span>
                 </label>
                 <input
                   id='gated-signup-email'
@@ -89,14 +91,15 @@ const renderGatedInterestSignUp = (emailEntered: string) => {
                   placeholder={UI_TEXT.ENTER_YOUR_EMAIL}
                   required
                   value={emailEntered}
+                  className='input input-bordered w-full'
                   data-testid='gated-signup-email-input'
                   aria-label='Email'
                 />
               </div>
 
-              <div>
-                <label htmlFor='gated-signup-password'>
-                  <span>Password *</span>
+              <div className='form-control w-full'>
+                <label className='label' htmlFor='gated-signup-password'>
+                  <span className='label-text'>Password *</span>
                 </label>
                 <input
                   id='gated-signup-password'
@@ -105,13 +108,18 @@ const renderGatedInterestSignUp = (emailEntered: string) => {
                   placeholder='Enter your password (min 8 characters)'
                   required
                   minLength={8}
+                  className='input input-bordered w-full'
                   data-testid='gated-signup-password-input'
                   aria-label='Password'
                 />
               </div>
 
-              <div>
-                <button type='submit' data-testid='gated-signup-action'>
+              <div className='card-actions justify-end mt-2'>
+                <button
+                  type='submit'
+                  className='btn btn-primary w-full'
+                  data-testid='gated-signup-action'
+                >
                   Create Account
                 </button>
               </div>
@@ -119,27 +127,25 @@ const renderGatedInterestSignUp = (emailEntered: string) => {
           </div>
 
           {/* Divider */}
-          <div style={{ margin: '2rem 0', textAlign: 'center' }}>
-            <hr />
-            <span>OR</span>
-          </div>
+          <div className='divider'>OR</div>
 
           {/* Interest sign-up form */}
           <div>
-            <h3>Join the Waitlist</h3>
-            <p>
+            <h3 className='text-lg font-semibold mb-3'>Join the Waitlist</h3>
+            <p className='text-sm text-gray-600 mb-4'>
               Don't have a code? Enter your email to be notified when we're
               accepting new accounts.
             </p>
             <form
               method='post'
               action={PATHS.AUTH.INTEREST_SIGN_UP}
+              className='flex flex-col gap-4'
               aria-label='Interest sign up form'
               noValidate
             >
-              <div>
-                <label htmlFor='interest-email'>
-                  <span>Email Address</span>
+              <div className='form-control w-full'>
+                <label className='label' htmlFor='interest-email'>
+                  <span className='label-text'>Email Address</span>
                 </label>
                 <input
                   id='interest-email'
@@ -148,13 +154,18 @@ const renderGatedInterestSignUp = (emailEntered: string) => {
                   placeholder='Enter your email address'
                   required
                   value={emailEntered}
+                  className='input input-bordered w-full'
                   data-testid='interest-email-input'
                   aria-label='Email'
                 />
               </div>
 
-              <div>
-                <button type='submit' data-testid='interest-action'>
+              <div className='card-actions justify-end'>
+                <button
+                  type='submit'
+                  className='btn btn-secondary w-full'
+                  data-testid='interest-action'
+                >
                   Join Waitlist
                 </button>
               </div>
@@ -162,9 +173,13 @@ const renderGatedInterestSignUp = (emailEntered: string) => {
           </div>
 
           {/* Navigation to sign-in page */}
-          <div style={{ marginTop: '2rem' }}>Already have an account?</div>
-          <div>
-            <a href={PATHS.AUTH.SIGN_IN} data-testid='go-to-sign-in-action'>
+          <div className='divider'>Already have an account?</div>
+          <div className='card-actions justify-center'>
+            <a
+              href={PATHS.AUTH.SIGN_IN}
+              className='btn btn-outline btn-secondary'
+              data-testid='go-to-sign-in-action'
+            >
               Sign In Instead
             </a>
           </div>

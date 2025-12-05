@@ -8,7 +8,7 @@ export const TEST_USERS = {
   KNOWN_USER: {
     email: 'fredfred@team439980.testinator.com',
     password: 'freds-clever-password',
-    name: 'Fred Fred',
+    name: 'FredF',
   },
 
   // Standard new user for sign-up tests
@@ -77,13 +77,13 @@ export const ERROR_MESSAGES = {
     'Invalid email or password. Please check your credentials and try again.',
   EMAIL_NOT_VERIFIED:
     'Please verify your email address before signing in. Check your email for a verification link.',
-  MUST_SIGN_IN: 'You must sign in to visit that page.',
+  MUST_SIGN_IN: 'You must sign in to visit that page',
   SIGN_OUT_SUCCESS: 'You have been signed out successfully.',
   SIGN_IN_SUCCESS: 'Welcome! You have been signed in successfully.',
 
   // Validation errors
   INVALID_EMAIL: 'Please enter a valid email address.',
-  EMAIL_REQUIRED: 'Email address is required.',
+  EMAIL_REQUIRED: 'Please enter your email address.',
   PASSWORD_REQUIRED: 'Please enter your password.',
   NAME_REQUIRED: 'Please enter your name.',
   CODE_REQUIRED: 'Please enter a valid sign-up code.',
@@ -104,7 +104,7 @@ export const ERROR_MESSAGES = {
   RESET_LINK_SENT:
     "If an account with that email exists, we've sent you a password reset link.",
   PASSWORD_RESET_SUCCESS:
-    'Your password has been reset successfully. You can now sign in with your new password.',
+    'Your password has been successfully reset. You can now sign in with your new password.',
 } as const
 
 export const BASE_URLS = {
@@ -116,4 +116,5 @@ export const BASE_URLS = {
   AWAIT_VERIFICATION: 'http://localhost:3000/auth/await-verification',
   PRIVATE: 'http://localhost:3000/private',
   WAITING_FOR_RESET: 'http://localhost:3000/auth/waiting-for-reset',
+  PROFILE: 'http://localhost:3000/profile',
 } as const

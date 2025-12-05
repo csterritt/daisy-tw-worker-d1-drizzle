@@ -4,14 +4,14 @@ import {
   verifyOnStartupPage,
   verifyOnSignInPage,
   verifyOnSignUpPage,
-  verifyOnInterestSignUpPage,
-  verifyOnGatedSignUpPage,
+  verifyOnProfilePage,
   verifyOnProtectedPage,
   verifyOnAwaitVerificationPage,
   verifyOnForgotPasswordPage,
   verifyOnWaitingForResetPage,
   verifyOn404Page,
 } from './page-verifiers'
+import { detectSignUpMode } from './mode-helpers'
 
 /**
  * Navigation helpers that combine page.goto() with verification
@@ -33,14 +33,25 @@ export const navigateToSignUp = async (page: Page) => {
   await verifyOnSignUpPage(page)
 }
 
+/**
+ * Navigate to interest sign-up page
+ * Uses /auth/interest-sign-up in INTEREST_SIGN_UP mode, /auth/sign-up in BOTH_SIGN_UP mode
+ */
 export const navigateToInterestSignUp = async (page: Page) => {
-  await page.goto(BASE_URLS.INTEREST_SIGN_UP)
-  await verifyOnInterestSignUpPage(page)
+  const mode = await detectSignUpMode()
+  const url =
+    mode === 'INTEREST_SIGN_UP' ? BASE_URLS.INTEREST_SIGN_UP : BASE_URLS.SIGN_UP
+  await page.goto(url)
+  await verifyOnSignUpPage(page)
 }
 
+/**
+ * Navigate to gated sign-up page
+ * Works for both GATED_SIGN_UP and BOTH_SIGN_UP modes
+ */
 export const navigateToGatedSignUp = async (page: Page) => {
   await page.goto(BASE_URLS.SIGN_UP)
-  await verifyOnGatedSignUpPage(page)
+  await verifyOnSignUpPage(page)
 }
 
 export const navigateToForgotPassword = async (page: Page) => {
@@ -63,18 +74,15 @@ export const navigateToPrivatePage = async (page: Page) => {
   await verifyOnProtectedPage(page)
 }
 
-/**
- * Navigation helpers for testing 404 routes
- */
-export const navigateTo404Route = async (page: Page, route: string) => {
-  await page.goto(`${BASE_URLS.HOME}${route}`)
-  await verifyOn404Page(page)
+export const navigateToProfile = async (page: Page) => {
+  await page.goto(BASE_URLS.PROFILE)
+  await verifyOnProfilePage(page)
 }
 
 /**
- * Helper for navigating to routes that should return 404 in certain modes
+ * Navigation helper for testing 404 routes
  */
-export const expectRoute404 = async (page: Page, route: string) => {
+export const navigateTo404Route = async (page: Page, route: string) => {
   await page.goto(`${BASE_URLS.HOME}${route}`)
   await verifyOn404Page(page)
 }

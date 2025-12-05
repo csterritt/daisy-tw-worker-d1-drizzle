@@ -21,50 +21,56 @@ import { retrieveCookie, removeCookie } from '../../lib/cookie-support'
  */
 const renderAwaitVerification = (email?: string) => {
   return (
-    <div data-testid='await-verification-page'>
-      <div>
-        <div>
-          <div>
+    <div data-testid='await-verification-page' className='flex justify-center'>
+      <div className='card w-full max-w-md bg-base-100 shadow-xl'>
+        <div className='card-body'>
+          <div className='alert alert-info mb-4'>
             <div>
-              <div>
-                <h2>Check Your Email</h2>
-                <p>
-                  We've sent a verification link to{' '}
-                  {email ? <span>{email}</span> : 'your email address'}.
-                </p>
-              </div>
+              <h2 className='font-bold text-lg'>Check Your Email</h2>
+              <p>
+                We've sent a verification link to{' '}
+                {email ? <strong>{email}</strong> : 'your email address'}.
+              </p>
             </div>
           </div>
 
-          <div>
-            <p>
+          <div className='text-sm text-gray-600 mb-4'>
+            <p className='mb-2'>
               Please check your email and click the verification link to
               complete your account setup. You'll need to verify your email
               before you can sign in.
             </p>
 
-            <div>
-              <h3>Don't see the email?</h3>
-              <ul>
+            <div className='mt-4'>
+              <h3 className='font-semibold mb-2'>Don't see the email?</h3>
+              <ul className='list-disc list-inside space-y-1'>
                 <li>Check your spam or junk folder</li>
                 <li>Make sure you entered the correct email address</li>
                 <li>The email may take a few minutes to arrive</li>
               </ul>
             </div>
+          </div>
 
-            <div>
-              <a href={PATHS.AUTH.SIGN_IN} data-testid='back-to-sign-in-action'>
-                Back to Sign In
-              </a>
-              {email && (
-                <form method='post' action={PATHS.AUTH.RESEND_EMAIL}>
-                  <input type='hidden' name='email' value={email} />
-                  <button type='submit' data-testid='resend-email-action'>
-                    Resend Email
-                  </button>
-                </form>
-              )}
-            </div>
+          <div className='card-actions justify-center flex-col gap-2'>
+            <a
+              href={PATHS.AUTH.SIGN_IN}
+              className='btn btn-ghost'
+              data-testid='back-to-sign-in-action'
+            >
+              Back to Sign In
+            </a>
+            {email && (
+              <form method='post' action={PATHS.AUTH.RESEND_EMAIL}>
+                <input type='hidden' name='email' value={email} />
+                <button
+                  type='submit'
+                  className='btn btn-outline btn-secondary'
+                  data-testid='resend-email-action'
+                >
+                  Resend Email
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>

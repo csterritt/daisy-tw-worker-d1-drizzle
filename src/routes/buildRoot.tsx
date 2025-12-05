@@ -17,16 +17,22 @@ import { Bindings } from '../local-types'
  */
 const renderRoot = () => {
   return (
-    <div data-testid='startup-page-banner'>
-      <div>
-        <div class='container'>
-          <h2>Welcome!</h2>
-          <h3 id='heading'>Worker, D1, Drizzle Project</h3>
-          <p>
-            <a href={PATHS.PRIVATE} data-testid='visit-private-action'>
+    <div data-testid='startup-page-banner' className='flex justify-center'>
+      <div className='card w-full max-w-md bg-base-100 shadow-xl'>
+        <div className='card-body container'>
+          <h2 className='card-title text-2xl font-bold'>Welcome!</h2>
+          <h3 id='heading' className='text-lg text-gray-600 mb-4'>
+            Worker, D1, Drizzle Project
+          </h3>
+          <div className='card-actions'>
+            <a
+              href={PATHS.PRIVATE}
+              className='btn btn-primary'
+              data-testid='visit-private-action'
+            >
               Protected Content
             </a>
-          </p>
+          </div>
         </div>
       </div>
 
@@ -59,7 +65,7 @@ const renderRoot = () => {
               // Create alert element
               const alertDiv = document.createElement('div');              
               alertDiv.innerHTML = \`
-                <div role="alert">
+                <div class="alert alert-success mx-4 mt-4" role="alert">
                   <span>\${decodedMessage}</span>
                 </div>
               \`;

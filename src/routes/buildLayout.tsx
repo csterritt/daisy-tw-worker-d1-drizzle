@@ -38,29 +38,37 @@ export const useLayout = (
   c.header('Content-Type', 'text/html; charset=utf-8')
 
   return (
-    <div>
+    <div className='min-h-screen flex flex-col'>
       {/* Responsive navbar */}
-      <div>
-        <div>
-          <div>
-            <span>Worker, D1, Drizzle Demo</span>
-          </div>
+      <div className='navbar bg-base-100 shadow-lg'>
+        <div className='flex-1'>
+          <a href={PATHS.ROOT} className='btn btn-ghost text-xl'>
+            Worker, D1, Drizzle Demo
+          </a>
         </div>
-        <div>
+        <div className='flex-none gap-2'>
           {!c.get('user') && (
-            <a href={PATHS.AUTH.SIGN_IN} data-testid='sign-in-action'>
+            <a
+              href={PATHS.AUTH.SIGN_IN}
+              className='btn btn-primary'
+              data-testid='sign-in-action'
+            >
               Sign in
             </a>
           )}
 
           {c.get('user') && (
-            <div>
-              <span>
+            <div className='flex items-center gap-4'>
+              <span className='text-sm'>
                 Welcome, {c.get('user')?.name || c.get('user')?.email || 'User'}
                 !
               </span>
               <form method='post' action='/auth/sign-out'>
-                <button type='submit' data-testid='sign-out-action'>
+                <button
+                  type='submit'
+                  className='btn btn-outline btn-sm'
+                  data-testid='sign-out-action'
+                >
                   Sign out
                 </button>
               </form>
@@ -71,22 +79,22 @@ export const useLayout = (
 
       {/* Alert messages */}
       {message && (
-        <div role='alert'>
+        <div className='alert alert-info mx-4 mt-4' role='alert'>
           <span>{message}</span>
         </div>
       )}
 
       {error && (
-        <div role='alert'>
+        <div className='alert alert-error mx-4 mt-4' role='alert'>
           <span>{error}</span>
         </div>
       )}
 
       {/* Main content */}
-      <div>{children}</div>
+      <main className='flex-1 container mx-auto px-4 py-8'>{children}</main>
 
       {/* Footer */}
-      <footer>
+      <footer className='footer footer-center p-4 bg-base-300 text-base-content'>
         <div>
           <p>Copyright &copy; 2025 V-{version}</p>
         </div>
