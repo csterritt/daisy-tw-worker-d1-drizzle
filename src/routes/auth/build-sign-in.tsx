@@ -141,7 +141,9 @@ export const buildSignIn = (app: Hono<{ Bindings: Bindings }>): void => {
     (c) => {
       // Check if user is already signed in using better-auth session
       // Better-auth middleware sets user context, access it properly
-      const user = (c as any).get('user')
+      const user = (c as unknown as { get: (key: string) => unknown }).get(
+        'user'
+      ) as { id: string } | null
       if (user) {
         console.log('Already signed in')
         return redirectWithMessage(c, PATHS.PRIVATE, MESSAGES.ALREADY_SIGNED_IN)

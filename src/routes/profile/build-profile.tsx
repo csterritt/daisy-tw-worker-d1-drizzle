@@ -10,9 +10,9 @@ import { Context, Hono } from 'hono'
 import { secureHeaders } from 'hono/secure-headers'
 
 import { PATHS, STANDARD_SECURE_HEADERS } from '../../constants'
-import { Bindings } from '../../local-types'
+import type { AuthUser, Bindings } from '../../local-types'
 import { useLayout } from '../build-layout'
-import { setupNoCacheHeaders } from '../../lib/setup-no-cache-headers'
+import { signedInAccess } from '../../middleware/signed-in-access'
 
 /**
  * List of humorous questions for the optional user information field
@@ -48,6 +48,11 @@ const getQuestionOfTheDay = (): string => {
   return HUMOROUS_QUESTIONS[index]
 }
 
+const getSignedInUser = (c: Context): AuthUser => {
+  const user = c.get('user') as AuthUser | undefined | null
+  return user as AuthUser
+}
+
 /**
  * Render the JSX for the profile page.
  * @param userName - User's name
@@ -60,7 +65,16 @@ const renderProfile = (userName: string, userEmail: string) => {
     <div data-testid='profile-page' className='flex justify-center'>
       <div className='card w-full max-w-2xl bg-base-100 shadow-xl'>
         <div className='card-body'>
-          <h2 className='card-title text-2xl font-bold mb-4'>Profile</h2>
+          <div className='flex justify-between'>
+            <h2 className='card-title text-2xl font-bold mb-4'>Profile</h2>
+            <a
+              href={PATHS.PRIVATE}
+              className='btn btn-secondary'
+              data-testid='go-back-action'
+            >
+              Back
+            </a>
+          </div>
 
           {/* User Information Section */}
           <div className=''>
@@ -180,16 +194,9 @@ export const buildProfile = (app: Hono<{ Bindings: Bindings }>): void => {
   app.get(
     PATHS.PROFILE,
     secureHeaders(STANDARD_SECURE_HEADERS),
+    signedInAccess,
     (c: Context) => {
-      setupNoCacheHeaders(c)
-
-      const user = c.get('user')
-
-      // Redirect to sign-in if not authenticated
-      if (!user) {
-        return c.redirect(PATHS.AUTH.SIGN_IN)
-      }
-
+      const user = getSignedInUser(c)
       const userName = user.name || 'User'
       const userEmail = user.email || ''
 

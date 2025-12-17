@@ -31,7 +31,9 @@ export const handleInterestSignUp = (
       console.log('🔧 handleInterestSignUp called')
 
       // Check if user is already signed in
-      const user = (c as any).get('user')
+      const user = (c as unknown as { get: (key: string) => unknown }).get(
+        'user'
+      ) as { id: string } | null
       if (user) {
         console.log('Already signed in')
         return redirectWithMessage(c, PATHS.PRIVATE, MESSAGES.ALREADY_SIGNED_IN)
