@@ -17,7 +17,7 @@ import {
   UI_TEXT,
 } from '../../constants'
 import { Bindings } from '../../local-types'
-import { useLayout } from '../buildLayout'
+import { useLayout } from '../build-layout'
 import { COOKIES } from '../../constants'
 import { redirectWithMessage } from '../../lib/redirects'
 import { setupNoCacheHeaders } from '../../lib/setup-no-cache-headers'

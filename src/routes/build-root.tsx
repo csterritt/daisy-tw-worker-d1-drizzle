@@ -9,7 +9,7 @@
 import { Hono } from 'hono'
 import { secureHeaders } from 'hono/secure-headers'
 import { PATHS, COOKIES, ALLOW_SCRIPTS_SECURE_HEADERS } from '../constants'
-import { useLayout } from './buildLayout'
+import { useLayout } from './build-layout'
 import { Bindings } from '../local-types'
 
 /**
