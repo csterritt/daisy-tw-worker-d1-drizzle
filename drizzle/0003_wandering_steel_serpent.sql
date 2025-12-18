@@ -1,0 +1,1 @@
+DROP INDEX `singleUseCode_code_unique`;
