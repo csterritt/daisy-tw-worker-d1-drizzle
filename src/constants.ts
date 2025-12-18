@@ -66,8 +66,10 @@ export const PATHS = {
     SIGN_OUT: '/auth/sign-out',
   },
 
-  // Profile path
+  // Profile paths
   PROFILE: '/profile' as const,
+  PROFILE_DELETE_CONFIRM: '/profile/delete-confirm' as const,
+  PROFILE_DELETE: '/profile/delete' as const,
 } as const
 
 // Cookie names

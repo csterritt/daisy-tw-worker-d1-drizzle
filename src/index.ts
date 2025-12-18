@@ -34,7 +34,9 @@ import { handleResendEmail } from './routes/auth/handle-resend-email'
 import { handleForgotPassword } from './routes/auth/handle-forgot-password'
 import { handleResetPassword } from './routes/auth/handle-reset-password'
 import { buildProfile } from './routes/profile/build-profile'
+import { buildDeleteConfirm } from './routes/profile/build-delete-confirm'
 import { handleChangePassword } from './routes/profile/handle-change-password'
+import { handleDeleteAccount } from './routes/profile/handle-delete-account'
 import {
   setupBetterAuth,
   setupBetterAuthMiddleware,
@@ -197,7 +199,9 @@ handleSignOut(app)
 handleForgotPassword(app)
 handleResetPassword(app)
 buildProfile(app)
+buildDeleteConfirm(app)
 handleChangePassword(app)
+handleDeleteAccount(app)
 
 handleSetClock(app) // PRODUCTION:REMOVE
 handleResetClock(app) // PRODUCTION:REMOVE
