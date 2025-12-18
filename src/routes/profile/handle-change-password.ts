@@ -71,7 +71,7 @@ export const handleChangePassword = (
             body: {
               currentPassword,
               newPassword,
-              revokeOtherSessions: false,
+              revokeOtherSessions: true,
             },
             headers: c.req.raw.headers,
           })

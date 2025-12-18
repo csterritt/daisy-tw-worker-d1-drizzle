@@ -12,6 +12,7 @@ import { secureHeaders } from 'hono/secure-headers'
 import { PATHS, STANDARD_SECURE_HEADERS } from '../../constants'
 import type { AuthUser, Bindings } from '../../local-types'
 import { useLayout } from '../build-layout'
+import { setupNoCacheHeaders } from '../../lib/setup-no-cache-headers'
 import { signedInAccess } from '../../middleware/signed-in-access'
 
 /**
@@ -200,6 +201,7 @@ export const buildProfile = (app: Hono<{ Bindings: Bindings }>): void => {
       const userName = user.name || 'User'
       const userEmail = user.email || ''
 
+      setupNoCacheHeaders(c)
       return c.render(useLayout(c, renderProfile(userName, userEmail)))
     }
   )
