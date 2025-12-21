@@ -1622,6 +1622,9 @@
       }
     }
   }
+  .block {
+    display: block;
+  }
   .contents {
     display: contents;
   }

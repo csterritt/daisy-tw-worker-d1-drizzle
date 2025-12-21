@@ -121,6 +121,7 @@ export const BASE_URLS = {
   AWAIT_VERIFICATION: 'http://localhost:3000/auth/await-verification',
   PRIVATE: 'http://localhost:3000/private',
   WAITING_FOR_RESET: 'http://localhost:3000/auth/waiting-for-reset',
+  SIGN_OUT: 'http://localhost:3000/auth/sign-out',
   PROFILE: 'http://localhost:3000/profile',
   PROFILE_DELETE_CONFIRM: 'http://localhost:3000/profile/delete-confirm',
 } as const

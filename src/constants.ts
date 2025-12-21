@@ -83,8 +83,6 @@ export const COOKIES = {
 
   // Session cookie
   SESSION: 'SESSION',
-  // Sign out message cookie
-  SIGN_OUT_MESSAGE: 'SIGN_OUT_MESSAGE',
   // DB failure count cookie for testing // PRODUCTION:REMOVE
   DB_FAIL_COUNT: 'DB_FAIL_COUNT', // PRODUCTION:REMOVE
   DB_FAIL_INCR: 'DB_FAIL_INCR', // PRODUCTION:REMOVE

@@ -58,3 +58,7 @@ export const verifyOnProfilePage = async (page: Page) => {
 export const verifyOnDeleteConfirmPage = async (page: Page) => {
   expect(await verifyElementExists(page, 'delete-confirm-page')).toBe(true)
 }
+
+export const verifyOnSignOutPage = async (page: Page) => {
+  expect(await verifyElementExists(page, 'sign-out-page')).toBe(true)
+}

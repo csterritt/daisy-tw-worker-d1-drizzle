@@ -25,6 +25,7 @@ import { buildGatedInterestSignUp } from './routes/auth/build-gated-interest-sig
 import { buildForgotPassword } from './routes/auth/build-forgot-password'
 import { buildWaitingForReset } from './routes/auth/build-waiting-for-reset'
 import { buildResetPassword } from './routes/auth/build-reset-password'
+import { buildSignOut } from './routes/auth/build-sign-out'
 import { handleSignUp } from './routes/auth/handle-sign-up'
 import { handleGatedSignUp } from './routes/auth/handle-gated-sign-up'
 import { handleInterestSignUp } from './routes/auth/handle-interest-sign-up'
@@ -195,6 +196,7 @@ buildForgotPassword(app)
 buildWaitingForReset(app)
 buildResetPassword(app)
 buildEmailConfirmation(app)
+buildSignOut(app)
 handleSignOut(app)
 handleForgotPassword(app)
 handleResetPassword(app)

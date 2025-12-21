@@ -1,77 +1,85 @@
-## 15. Delete Account Feature Implementation
+## Plan: Change sign-out flow to dedicated /auth/sign-out page
 
-### 15.1 Overview
+### Goal
 
-Add ability for users to delete their own account from the profile page, with a confirmation step to prevent accidental deletion.
+When a user signs out:
 
-### 15.2 User Flow
+- Stop setting a JS-readable “simple cookie” for sign-out messaging.
+- After the POST sign-out completes, redirect to a new **GET** `/auth/sign-out` page.
+- The `/auth/sign-out` page should render:
+  - The message: `You have been signed out successfully.`
+  - A button that takes the user to the home page.
 
-1. User visits profile page → sees "Delete Account" section at bottom (red styling)
-2. User clicks "Delete Account" button → navigates to confirmation page
-3. Confirmation page shows warning with two options:
-   - **Cancel** → returns to profile page (user can still sign out/sign in)
-   - **Delete This Account** → permanently deletes account, redirects to sign-in
+Update Playwright end-to-end tests to reflect the new sign-out UX.
 
-### 15.3 Files to Modify
+### Current behavior (baseline)
 
-| File                                   | Change                                                        |
-| -------------------------------------- | ------------------------------------------------------------- |
-| `src/constants.ts`                     | Add `PATHS.PROFILE_DELETE_CONFIRM` and `PATHS.PROFILE_DELETE` |
-| `src/routes/profile/build-profile.tsx` | Add delete account section with red divider and warning       |
-| `src/index.ts`                         | Register new routes                                           |
+- POST `/auth/sign-out` (handler: `src/routes/auth/handle-sign-out.ts`) calls Better Auth sign-out, then:
+  - Sets `COOKIES.SIGN_OUT_MESSAGE` using `addSimpleCookie`.
+  - Redirects to `/`.
+- The home page (`src/routes/build-root.tsx`) reads `SIGN_OUT_MESSAGE` cookie in JS and injects an alert.
 
-### 15.4 Files to Create
+### Implementation checklist
 
-| File                                          | Purpose                                      |
-| --------------------------------------------- | -------------------------------------------- |
-| `src/routes/profile/build-delete-confirm.tsx` | Confirmation page with Cancel/Delete buttons |
-| `src/routes/profile/handle-delete-account.ts` | POST handler to delete user and redirect     |
-| `src/lib/db-access.ts`                        | Add `deleteUserAccount(db, userId)` function |
+#### 1) Add new sign-out “landing page” route
 
-### 15.5 Implementation Checklist
+- [x] **Create** a new route builder file:
+  - `src/routes/auth/build-sign-out.tsx`
+- [x] **Route**: `GET /auth/sign-out`
+- [x] **UI requirements**:
+  - [x] Add a root element with `data-testid='sign-out-page'`.
+  - [x] Display the exact text: `You have been signed out successfully.`
+  - [x] Add a button linking to `/` with `data-testid='go-home-action'`.
+- [x] Apply `secureHeaders(STANDARD_SECURE_HEADERS)`.
+- [x] Apply `setupNoCacheHeaders(c)` (recommended, since this page is session-adjacent).
+- [x] Register `buildSignOut(app)` in `src/index.ts` near other auth page builders.
 
-- [ ] Add path constants for `/profile/delete-confirm` and `/profile/delete`
-- [ ] Add delete account section to profile page:
-  - [ ] Red divider (`divider` with red background)
-  - [ ] "Delete Account" heading in red
-  - [ ] Warning text: "This action cannot be undone"
-  - [ ] Button linking to confirmation page
-- [ ] Create confirmation page (`build-delete-confirm.tsx`):
-  - [ ] Requires `signedInAccess` middleware
-  - [ ] "Are you absolutely sure?" heading
-  - [ ] Warning about permanent deletion
-  - [ ] Cancel button (link to `/profile`)
-  - [ ] Delete This Account button (form POST to `/profile/delete`)
-- [ ] Create delete handler (`handle-delete-account.ts`):
-  - [ ] Requires `signedInAccess` middleware
-  - [ ] Get user ID from session
-  - [ ] Delete user from database (FK cascade handles sessions/accounts)
-  - [ ] Clear session cookie
-  - [ ] Redirect to sign-in with success message
-- [ ] Add `deleteUserAccount` to `db-access.ts`:
-  - [ ] Use `withRetry` wrapper
-  - [ ] Return `Result<boolean, Error>`
-- [ ] Register routes in `index.ts`
+#### 2) Modify POST /auth/sign-out to redirect to GET /auth/sign-out (no cookies)
 
-### 15.6 E2E Tests to Create
+- [x] Update `src/routes/auth/handle-sign-out.ts`:
+  - [x] Remove all use of `addSimpleCookie` and `COOKIES.SIGN_OUT_MESSAGE`.
+  - [x] Replace `redirectWithMessage(... PATHS.ROOT ...)` with a **303 redirect** to `PATHS.SIGN_OUT`.
+    - Rationale: 303 ensures the browser follows with `GET` even though the initial request is `POST`.
+  - [x] Preserve existing behavior of forwarding Better Auth “clear session cookie” headers onto the redirect response.
+  - [x] In the fallback path (manual cookie clearing), still redirect to `PATHS.SIGN_OUT` (303).
 
-| Test File                                             | Scenario                                                                                                                     |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `e2e-tests/profile/05-delete-account-cancel.spec.ts`  | Cancel flow: sign in → profile → delete → confirm → cancel → back on profile → can sign out and sign back in                 |
-| `e2e-tests/profile/06-delete-account-confirm.spec.ts` | Delete flow: sign in → profile → delete → confirm → delete → redirected to sign-in → cannot sign in with deleted credentials |
+#### 3) Remove sign-out “simple cookie” infrastructure
 
-### 15.7 Security Considerations
+- [x] Update `src/lib/cookie-support.ts`:
+  - [x] Remove `addSimpleCookie`.
+  - [x] Remove `removeSimpleCookie` if unused after this refactor.
+- [x] Update `src/constants.ts`:
+  - [x] Remove `COOKIES.SIGN_OUT_MESSAGE` if no longer used.
+- [x] Update `src/routes/build-root.tsx`:
+  - [x] Remove the sign-out cookie-reading JavaScript block (the page should no longer try to display sign-out messaging).
 
-- [ ] Confirmation page requires authentication
-- [ ] Delete handler requires authentication
-- [ ] User can only delete their own account (ID from session, not URL)
-- [ ] CSRF protection on POST handler
-- [ ] No-cache headers on confirmation page
+#### 4) Update E2E tests and helpers for the new flow
 
----
+- [x] Add a new page verifier in `e2e-tests/support/page-verifiers.ts`:
+  - `verifyOnSignOutPage(page)` checks `data-testid='sign-out-page'`.
+- [x] Update `e2e-tests/support/auth-helpers.ts`:
+  - [x] Update `signOutAndVerify(page)`:
+    - [x] Click `data-testid='sign-out-action'`.
+    - [x] Verify `verifyOnSignOutPage(page)`.
+    - [x] Click `data-testid='go-home-action'`.
+    - [x] Verify `verifyOnStartupPage(page)`.
+- [x] Update `e2e-tests/sign-in/05-sign-out-successfully.spec.ts`:
+  - [x] After clicking sign out:
+    - [x] Verify we land on the sign-out page.
+    - [x] Verify the page contains `ERROR_MESSAGES.SIGN_OUT_SUCCESS`.
+    - [x] Click the “Home” button and verify startup page.
+  - [x] Keep the existing “private page redirects to sign-in” assertion (should still pass).
+- [x] Update any other tests that depend on `signOutAndVerify()` expecting to be on the startup page immediately.
+  - Known references:
+    - `e2e-tests/general/03-test-body-size-limit.spec.ts`
+    - `e2e-tests/general/04-test-secure-headers.spec.ts`
 
-## 16. Review Complete
+### Verification
 
-- [ ] All sections reviewed
-- [ ] Issues documented with recommendations
-- [ ] Production checklist verified
+- [x] Manual sanity check:
+  - [x] Sign in → click Sign out → verify you land on `/auth/sign-out`.
+  - [x] Click “Home” → returns to `/`.
+  - [x] Attempt `/private` → redirected to `/auth/sign-in`.
+- [x] Run Playwright suite (at minimum):
+  - [x] `e2e-tests/sign-in/05-sign-out-successfully.spec.ts`
+  - [x] Any tests using `signOutAndVerify`.
