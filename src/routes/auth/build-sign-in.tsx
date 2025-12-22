@@ -29,10 +29,10 @@ import {
 
 /**
  * Render the JSX for the sign-in page.
- * @param c - Hono context
  * @param emailEntered - email entered by user, if any
+ * @param signUpMode - current sign-up mode from environment bindings
  */
-const renderSignIn = (emailEntered: string) => {
+const renderSignIn = (emailEntered: string, signUpMode: string) => {
   return (
     <div data-testid='sign-in-page-banner' className='flex justify-center'>
       <div className='card w-full max-w-md bg-base-100 shadow-xl'>
@@ -104,20 +104,20 @@ const renderSignIn = (emailEntered: string) => {
           </div>
 
           {/* Navigation to sign-up page - only show if sign-up is enabled */}
-          {process.env.SIGN_UP_MODE !== SIGN_UP_MODES.NO_SIGN_UP && (
+          {signUpMode !== SIGN_UP_MODES.NO_SIGN_UP && (
             <>
               <div className='divider'>New user?</div>
               <div className='card-actions justify-center'>
                 <a
                   href={
-                    process.env.SIGN_UP_MODE === SIGN_UP_MODES.INTEREST_SIGN_UP
+                    signUpMode === SIGN_UP_MODES.INTEREST_SIGN_UP
                       ? PATHS.AUTH.INTEREST_SIGN_UP
                       : PATHS.AUTH.SIGN_UP
                   }
                   className='btn btn-outline btn-secondary'
                   data-testid='go-to-sign-up-action'
                 >
-                  {process.env.SIGN_UP_MODE === SIGN_UP_MODES.INTEREST_SIGN_UP
+                  {signUpMode === SIGN_UP_MODES.INTEREST_SIGN_UP
                     ? 'Join Waitlist'
                     : 'Create Account'}
                 </a>
@@ -166,7 +166,10 @@ export const buildSignIn = (app: Hono<{ Bindings: Bindings }>): void => {
         retrieveCookie(c, COOKIES.EMAIL_ENTERED) ?? ''
 
       setupNoCacheHeaders(c)
-      return c.render(useLayout(c, renderSignIn(emailEntered), extraMessage))
+      const signUpMode = c.env.SIGN_UP_MODE || SIGN_UP_MODES.NO_SIGN_UP
+      return c.render(
+        useLayout(c, renderSignIn(emailEntered, signUpMode), extraMessage)
+      )
     }
   )
 }
