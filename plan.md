@@ -1,73 +1,76 @@
-# Fix: Gated-code consumption semantics on failed sign-up
+# Fix: Waitlist insert race window
 
 ## Problem
 
-In `src/routes/auth/handle-gated-sign-up.ts`, the single-use sign-up code is consumed (deleted from DB) **before** the user account is created:
+In `src/lib/db-access.ts`, the `addInterestedEmailActual` function has a race condition:
 
 ```typescript
-// Line 55: Code is consumed FIRST
-const codeResult = await consumeSingleUseCode(dbClient, trimmedCode)
+const addInterestedEmailActual = async (db, email) => {
+  // Step 1: Check if email exists
+  const existingEmails = await db
+    .select()
+    .from(interestedEmails)
+    .where(eq(interestedEmails.email, email))
 
-// Line 81: Account creation happens AFTER
-const signUpResponse = await auth.api.signUpEmail({ ... })
+  if (existingEmails.length > 0) {
+    return Result.ok(false) // Already exists
+  }
+
+  // RACE WINDOW: Another request could insert the same email here
+
+  // Step 2: Insert the email
+  await db.insert(interestedEmails).values({ email })
+  return Result.ok(true)
+}
 ```
 
-If account creation fails (e.g., Better Auth error, duplicate email, network issue), the code is already gone. The user loses their invite code with no way to recover it.
+Between the SELECT and INSERT, another concurrent request could insert the same email, causing:
 
-### Current behavior
+- A unique constraint violation error
+- The function returns an error instead of gracefully handling "already exists"
 
-- Code consumed → Account creation fails → **Code is lost forever**
+## Current schema
 
-### Impact
+The `interestedEmails` table already has a unique constraint on `email` (it's the primary key):
 
-- Users with valid codes may be unable to sign up if there's a transient failure
-- Codes are a limited resource (presumably issued manually or via invitation system)
-- Poor UX: user must request a new code
+```typescript
+export const interestedEmails = sqliteTable('interestedEmails', {
+  email: text('email').primaryKey().unique(),
+})
+```
 
-## Options
+## Solution: Insert-first approach
 
-### Option A: Consume-after-success (rollback semantics)
+Instead of check-then-insert, use insert-first and catch the unique constraint error:
 
-Only delete the code after successful account creation.
+```typescript
+const addInterestedEmailActual = async (db, email) => {
+  try {
+    await db.insert(interestedEmails).values({ email })
+    return Result.ok(true) // Successfully added
+  } catch (e) {
+    // Check if it's a unique constraint violation
+    if (isUniqueConstraintError(e)) {
+      return Result.ok(false) // Already exists - not an error
+    }
+    return Result.err(e instanceof Error ? e : new Error(String(e)))
+  }
+}
+```
 
-**Pros**: User can retry with same code if sign-up fails  
-**Cons**: Race condition window where same code could be used twice concurrently
+This approach:
 
-### Option B: Keep current behavior + document (consume-first semantics)
-
-Keep the current "consume first" approach but document it clearly.
-
-**Pros**: Strong single-use guarantee, no race conditions  
-**Cons**: Codes can be "lost" on transient failures
-
-### Option C: Two-phase approach
-
-1. Mark code as "pending" (add a `usedAt` timestamp but don't delete)
-2. Create account
-3. Delete code on success, or clear `usedAt` on failure
-
-**Pros**: Best of both worlds  
-**Cons**: More complex, requires schema change
-
-## Recommended approach: Option A
-
-Move code consumption after successful account creation. The race condition risk is low (requires exact same code submitted at exact same moment) and can be mitigated by:
-
-- The account creation itself will fail for the second request (duplicate email)
-- Add a brief delay or use optimistic locking if needed
+- Eliminates the race window entirely
+- Uses the database's atomicity guarantees
+- Is actually simpler (one query instead of two)
+- Handles concurrent requests correctly
 
 ## Implementation steps
 
-1. In `handle-gated-sign-up.ts`:
-   - Change `consumeSingleUseCode` to `validateSingleUseCode` (check existence without deleting)
-   - Move the actual consumption to after successful `signUpEmail` call
-2. In `handle-gated-interest-sign-up.ts`:
-   - Apply the same pattern
+1. In `lib/db-access.ts`:
+   - Add helper function `isUniqueConstraintError` to detect SQLite unique constraint errors
+   - Rewrite `addInterestedEmailActual` to insert first, catch unique constraint as "already exists"
 
-3. In `lib/db-access.ts`:
-   - Add `validateSingleUseCode` function (SELECT without DELETE)
-   - Keep `consumeSingleUseCode` for the post-success deletion
-
-4. Add/update tests:
-   - Test that code is NOT consumed if sign-up fails
-   - Test that code IS consumed after successful sign-up
+2. Test the change:
+   - Existing tests should still pass
+   - The behavior is the same from the caller's perspective
