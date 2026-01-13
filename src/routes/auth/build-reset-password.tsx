@@ -35,7 +35,7 @@ const renderResetPassword = (token: string) => {
           {/* Reset password form */}
           <form
             method='post'
-            action='/auth/reset-password'
+            action={PATHS.AUTH.RESET_PASSWORD}
             className='flex flex-col gap-4'
             aria-label='Reset password form'
             noValidate

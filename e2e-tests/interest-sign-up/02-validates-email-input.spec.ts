@@ -14,7 +14,7 @@ import {
 } from '../support/validation-helpers'
 
 test.describe('Interest Sign-Up Mode: Email Validation Tests', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async () => {
     await skipIfNotMode('INTEREST_SIGN_UP')
   })
 
@@ -28,9 +28,7 @@ test.describe('Interest Sign-Up Mode: Email Validation Tests', () => {
     await testEmailValidation(page, 'interest-email-input', 'interest-action')
   })
 
-  test('shows error for invalid email format with form preservation', async ({
-    page,
-  }) => {
+  test('comprehensive form validation', async ({ page }) => {
     await navigateToInterestSignUp(page)
     await fillInput(page, 'interest-email-input', 'invalid-email-format')
     await clickLink(page, 'interest-action')

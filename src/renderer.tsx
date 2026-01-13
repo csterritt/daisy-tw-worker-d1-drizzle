@@ -20,4 +20,6 @@ export const renderer = jsxRenderer(({ children }) => {
       <body className='min-h-screen bg-base-200'>{children}</body>
     </html>
   )
-})
+},
+  { docType: true })
+

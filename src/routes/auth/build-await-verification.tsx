@@ -30,7 +30,7 @@ const renderAwaitVerification = (email?: string) => {
               <h2 className='font-bold text-lg'>Check Your Email</h2>
               <p>
                 We've sent a verification link to{' '}
-                {email ? <span>{email}</span> : 'your email address'}.
+                {email ? <span className='font-semibold'>{email}</span> : 'your email address'}.
               </p>
             </div>
           </div>
