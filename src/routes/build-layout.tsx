@@ -87,14 +87,40 @@ export const useLayout = (
 
       {/* Alert messages */}
       {message && (
-        <div className='alert alert-info mx-4 mt-4' role='alert'>
-          <span>{message}</span>
+        <div className='alert alert-success mx-auto mt-4' role='alert'>
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            className='h-6 w-6 shrink-0 stroke-current'
+            fill='none'
+            viewBox='0 0 24 24'
+          >
+            <path
+              stroke-linecap='round'
+              stroke-linejoin='round'
+              stroke-width='2'
+              d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+            />
+          </svg>
+          <span className='align-middle'>{message}</span>
         </div>
       )}
 
       {error && (
-        <div className='alert alert-error mx-4 mt-4' role='alert'>
-          <span>{error}</span>
+        <div className='alert alert-error mx-auto mt-4' role='alert'>
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            className='h-6 w-6 shrink-0 stroke-current'
+            fill='none'
+            viewBox='0 0 24 24'
+          >
+            <path
+              stroke-linecap='round'
+              stroke-linejoin='round'
+              stroke-width='2'
+              d='M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'
+            />
+          </svg>
+          <span className='align-middle'>{error}</span>
         </div>
       )}
 
