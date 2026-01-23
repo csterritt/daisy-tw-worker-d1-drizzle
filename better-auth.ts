@@ -29,9 +29,6 @@ export default betterAuth({
       maxAge: 60 * 5, // 5 minutes
     },
   },
-  advanced: {
-    generateId: false,
-  },
   trustedOrigins: ['http://localhost:3000'],
   secret: 'dummy-secret-for-schema-generation',
 })

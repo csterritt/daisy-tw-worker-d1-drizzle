@@ -18,8 +18,8 @@ import { Bindings } from '../local-types'
  * @param name - Cookie name
  * @returns Cookie value or undefined if not found
  */
-export const retrieveCookie = (
-  c: Context<{ Bindings: Bindings }>,
+export const retrieveCookie = <E extends { Bindings: Bindings }>(
+  c: Context<E, any, any>,
   name: string
 ): string | undefined => {
   return getCookie(c, name)
@@ -32,8 +32,8 @@ export const retrieveCookie = (
  * @param value - Cookie value
  * @param extraOptions - Additional cookie options
  */
-export const addCookie = (
-  c: Context<{ Bindings: Bindings }>,
+export const addCookie = <E extends { Bindings: Bindings }>(
+  c: Context<E, any, any>,
   name: string,
   value: string,
   extraOptions?: Record<string, unknown>
@@ -51,8 +51,8 @@ export const addCookie = (
  * @param c - Hono context
  * @param name - Cookie name
  */
-export const removeCookie = (
-  c: Context<{ Bindings: Bindings }>,
+export const removeCookie = <E extends { Bindings: Bindings }>(
+  c: Context<E, any, any>,
   name: string
 ): void => {
   deleteCookie(c, name, COOKIES.STANDARD_COOKIE_OPTIONS)

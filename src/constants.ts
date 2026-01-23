@@ -200,7 +200,6 @@ export const STANDARD_SECURE_HEADERS: SecureHeadersConfig = {
     frameAncestors: ["'self'"],
     frameSrc: ["'self'"],
     imgSrc: ["'self'", 'data:'],
-    manifestSrc: ["'self'"],
     mediaSrc: ["'self'"],
     objectSrc: ["'none'"],
     reportTo: 'endpoint-1',

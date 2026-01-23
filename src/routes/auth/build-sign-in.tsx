@@ -96,7 +96,7 @@ const renderSignIn = (emailEntered: string, signUpMode: string) => {
           <div className='text-center mt-2'>
             <a
               href={PATHS.AUTH.FORGOT_PASSWORD}
-              className='link link-hover text-sm'
+              className='link link-primary text-sm'
               data-testid='forgot-password-action'
             >
               Forgot your password?
