@@ -42,12 +42,12 @@ export const useLayout = (
     <div className='min-h-screen flex flex-col'>
       {/* Responsive navbar */}
       <div className='navbar bg-base-100 shadow-lg'>
-        <div className='flex-1'>
+        <div className='navbar-start'>
           <a href={PATHS.ROOT} className='btn btn-ghost text-xl'>
             Worker, D1, Drizzle Demo
           </a>
         </div>
-        <div className='flex-none gap-2'>
+        <div className='navbar-end flex items-center'>
           {!c.get('user') && (
             <a
               href={PATHS.AUTH.SIGN_IN}
