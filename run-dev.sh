@@ -5,8 +5,6 @@
 
 set -euo pipefail
 
-source .env.sh
-
 if [[ "x${1-}" = "xboth-sign-up" ]] ; then
   echo "====> Both sign-up (gated + interest)"
   export SIGN_UP_MODE='BOTH_SIGN_UP'
