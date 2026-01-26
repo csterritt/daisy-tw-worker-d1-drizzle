@@ -9,7 +9,7 @@
 import { Hono } from 'hono'
 import { secureHeaders } from 'hono/secure-headers'
 
-import { PATHS, STANDARD_SECURE_HEADERS } from '../constants'
+import { COOKIES, PATHS, STANDARD_SECURE_HEADERS } from '../constants'
 import { Bindings } from '../local-types'
 import { redirectWithError, redirectWithMessage } from '../lib/redirects'
 import { addCookie } from '../lib/cookie-support'
@@ -23,12 +23,16 @@ export const handleSetDbFailures = (
 ): void => {
   // } // PRODUCTION:UNCOMMENT
   // PRODUCTION:STOP
+  const allowedCookieNames = new Set<string>([
+    COOKIES.DB_FAIL_COUNT,
+    COOKIES.DB_FAIL_INCR,
+  ])
   app.get(
     `${PATHS.AUTH.SET_DB_FAILURES}/:name/:times`,
     secureHeaders(STANDARD_SECURE_HEADERS),
     async (c) => {
       const name = c.req.param('name')
-      if (!name || name.trim() === '') {
+      if (!name || name.trim() === '' || !allowedCookieNames.has(name)) {
         return redirectWithError(c, PATHS.ROOT, 'Invalid name parameter')
       }
 

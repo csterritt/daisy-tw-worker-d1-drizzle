@@ -54,7 +54,7 @@ const getEmailConfig = (env: Bindings): EmailConfig => {
     smtpHost: isTestMode ? '127.0.0.1' : env.SMTP_SERVER_HOST || '127.0.0.1',
     smtpPort: isTestMode ? 1025 : parseInt(env.SMTP_SERVER_PORT || '587'),
     smtpUser: env.SMTP_SERVER_USER,
-    smtpPass: env.SMTP_SERVER_PASS,
+    smtpPass: env.SMTP_SERVER_PASSWORD,
     emailUrl: env.EMAIL_SEND_URL,
     emailCode: env.EMAIL_SEND_CODE,
   }
@@ -141,15 +141,8 @@ export const sendConfirmationEmail = async (
   confirmationUrl: string,
   token: string
 ): Promise<void> => {
-  console.log('🔔 sendConfirmationEmail called:', {
-    email,
-    name,
-    confirmationUrl, // PRODUCTION:REMOVE
-    token, // PRODUCTION:REMOVE
-  })
-
+  void token
   try {
-    console.log('📧 Creating email transporter...')
     const transporter = createTransporter(env)
 
     const mailOptions = {
@@ -187,8 +180,8 @@ export const sendConfirmationEmail = async (
       `,
     }
 
-    const result = await transporter.sendMail(mailOptions)
-    console.log('Confirmation email sent successfully:', result)
+    await transporter.sendMail(mailOptions)
+    console.log('Confirmation email sent successfully')
   } catch (error) {
     console.error('Failed to send confirmation email:', error)
     throw new Error('Failed to send confirmation email')
@@ -210,15 +203,8 @@ export const sendPasswordResetEmail = async (
   resetUrl: string,
   token: string
 ): Promise<void> => {
-  console.log('🔔 sendPasswordResetEmail called:', {
-    email,
-    name,
-    resetUrl, // PRODUCTION:REMOVE
-    token, // PRODUCTION:REMOVE
-  })
-
+  void token
   try {
-    console.log('📧 Creating email transporter...')
     const transporter = createTransporter(env)
 
     const mailOptions = {
@@ -264,8 +250,8 @@ export const sendPasswordResetEmail = async (
       `,
     }
 
-    const result = await transporter.sendMail(mailOptions)
-    console.log('Password reset email sent successfully:', result)
+    await transporter.sendMail(mailOptions)
+    console.log('Password reset email sent successfully')
   } catch (error) {
     console.error('Failed to send password reset email:', error)
     throw new Error('Failed to send password reset email')

@@ -9,6 +9,7 @@ import { createAuth } from '../../lib/auth'
 import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
 import { PATHS, STANDARD_SECURE_HEADERS } from '../../constants'
 import type { Bindings } from '../../local-types'
+import { removeCookie } from '../../lib/cookie-support'
 
 /**
  * Handle sign-out with proper UX flow
@@ -57,20 +58,11 @@ export const handleSignOut = (app: Hono<{ Bindings: Bindings }>): void => {
           console.error('Better-auth sign-out API error:', apiError)
         }
 
-        // Fallback: Clear cookies manually and redirect
-        const fallbackResponse = redirectWithMessage(c, PATHS.AUTH.SIGN_OUT, '')
-
         // Manually clear better-auth session cookies
-        fallbackResponse.headers.append(
-          'Set-Cookie',
-          'better-auth.session_token=; Path=/; HttpOnly; SameSite=lax; Max-Age=0'
-        )
-        fallbackResponse.headers.append(
-          'Set-Cookie',
-          'better-auth.session_data=; Path=/; HttpOnly; SameSite=lax; Max-Age=0'
-        )
+        removeCookie(c, 'better-auth.session_token')
+        removeCookie(c, 'better-auth.session_data')
 
-        return fallbackResponse
+        return redirectWithMessage(c, PATHS.AUTH.SIGN_OUT, '')
       } catch (error) {
         console.error('Sign-out handler error:', error)
 

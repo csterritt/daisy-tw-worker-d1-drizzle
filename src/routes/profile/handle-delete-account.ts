@@ -14,6 +14,7 @@ import { PATHS, STANDARD_SECURE_HEADERS } from '../../constants'
 import type { AuthUser, Bindings, DrizzleClient } from '../../local-types'
 import { signedInAccess } from '../../middleware/signed-in-access'
 import { deleteUserAccount } from '../../lib/db-access'
+import { removeCookie } from '../../lib/cookie-support'
 
 /**
  * Attach the delete account handler to the app.
@@ -65,24 +66,16 @@ export const handleDeleteAccount = (
 
         console.log('Account deleted successfully for user:', user.email)
 
-        // Clear session cookies and redirect to sign-in with success message
-        const response = redirectWithMessage(
+        // Clear better-auth session cookies before creating redirect response
+        removeCookie(c, 'better-auth.session_token')
+        removeCookie(c, 'better-auth.session_data')
+
+        // Redirect to sign-in with success message
+        return redirectWithMessage(
           c,
           PATHS.AUTH.SIGN_IN,
           'Your account has been successfully deleted.'
         )
-
-        // Clear better-auth session cookies
-        response.headers.append(
-          'Set-Cookie',
-          'better-auth.session_token=; Path=/; HttpOnly; SameSite=lax; Max-Age=0'
-        )
-        response.headers.append(
-          'Set-Cookie',
-          'better-auth.session_data=; Path=/; HttpOnly; SameSite=lax; Max-Age=0'
-        )
-
-        return response
       } catch (error) {
         console.error('Delete account handler error:', error)
         return redirectWithError(

@@ -5,6 +5,7 @@
 import { Context } from 'hono'
 
 import { addCookie, removeCookie, retrieveCookie } from './cookie-support'
+import type { Bindings } from '../local-types'
 
 /**
  * Returns the current time as a Date object. Use this instead of calling new Date() directly.
@@ -16,6 +17,17 @@ export const getCurrentTime = (
   c: Context,
   ...args: (string | number | Date)[]
 ): Date => {
+  const isTestMode =
+    (c as Context<{ Bindings: Bindings }>).env?.NODE_ENV !== 'production'
+  if (!isTestMode) {
+    if (args.length === 0) {
+      return new Date()
+    }
+
+    // @ts-ignore
+    return new Date(...args)
+  }
+
   // if (args.length === 0) { // PRODUCTION:UNCOMMENT
   //   return new Date() // PRODUCTION:UNCOMMENT
   // } // PRODUCTION:UNCOMMENT

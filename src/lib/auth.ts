@@ -50,11 +50,6 @@ export const createAuth = (env: Bindings) => {
         url: string
         token: string
       }) => {
-        console.log('🔔 better-auth sendResetPassword triggered:', {
-          user: user.email,
-          url,
-          token,
-        })
         try {
           // Send password reset email using our email service
           await sendPasswordResetEmail(env, user.email, user.name, url, token)
@@ -75,11 +70,6 @@ export const createAuth = (env: Bindings) => {
         url: string
         token: string
       }) => {
-        console.log('🔔 better-auth sendVerificationEmail triggered:', {
-          user: user.email,
-          url,
-          token,
-        })
         try {
           // Send confirmation email using our email service
           await sendConfirmationEmail(env, user.email, user.name, url, token)

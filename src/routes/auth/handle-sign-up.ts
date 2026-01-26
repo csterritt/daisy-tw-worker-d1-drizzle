@@ -14,6 +14,7 @@ import { validateRequest, SignUpFormSchema } from '../../lib/validators'
 import {
   handleSignUpResponseError,
   handleSignUpApiError,
+  getResponseStatus,
   updateAccountTimestampAfterSignUp,
   redirectToAwaitVerification,
 } from '../../lib/sign-up-utils'
@@ -77,8 +78,8 @@ export const handleSignUp = (app: Hono<{ Bindings: Bindings }>): void => {
             return errorResponse
           }
 
-          if ('status' in signUpResponse && signUpResponse.status !== 200) {
-            console.log('Better-auth non-200 status:', signUpResponse.status)
+          const responseStatus = getResponseStatus(signUpResponse)
+          if (responseStatus !== null && responseStatus !== 200) {
             return redirectWithError(
               c,
               PATHS.AUTH.SIGN_IN,

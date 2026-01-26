@@ -6,10 +6,10 @@
  * Middleware to validate required environment bindings at runtime
  * @module middleware/validateEnvBindings
  */
+import type { Bindings, AppVariables } from '../local-types'
 import { Context, Next } from 'hono'
 
 const INTERNAL_SERVER_ERROR = 500
-import type { Bindings, AppVariables } from '../local-types'
 
 /**
  * Required environment bindings that must be set for the app to function

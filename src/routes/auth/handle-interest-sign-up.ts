@@ -29,14 +29,11 @@ export const handleInterestSignUp = (
     secureHeaders(STANDARD_SECURE_HEADERS),
     async (c) => {
       try {
-        console.log('🔧 handleInterestSignUp called')
-
         // Check if user is already signed in
         const user = (c as unknown as { get: (key: string) => unknown }).get(
           'user'
         ) as { id: string } | null
         if (user) {
-          console.log('Already signed in')
           return redirectWithMessage(
             c,
             PATHS.PRIVATE,
@@ -62,19 +59,13 @@ export const handleInterestSignUp = (
 
         const email = data!.email as string
         const trimmedEmail = email.trim().toLowerCase()
-        console.log('Processing interest sign-up for email:', trimmedEmail)
 
         // Get database instance
         const db = c.get('db') as DrizzleClient
 
         try {
-          console.log('🔧 About to call addInterestedEmail for:', trimmedEmail)
           // Add email to interested emails list
           const addResult = await addInterestedEmail(db, trimmedEmail)
-          console.log(
-            '🔧 addInterestedEmail completed, result:',
-            addResult.isOk ? 'SUCCESS' : 'ERROR'
-          )
 
           if (addResult.isErr) {
             console.error(
@@ -91,7 +82,6 @@ export const handleInterestSignUp = (
 
           if (!addResult.value) {
             // Email already exists in the list
-            console.log('Email already registered for interest:', trimmedEmail)
             return redirectWithMessage(
               c,
               PATHS.AUTH.SIGN_IN,
@@ -100,7 +90,6 @@ export const handleInterestSignUp = (
           }
 
           // Successfully added to waitlist
-          console.log('Email successfully added to waitlist:', trimmedEmail)
           return redirectWithMessage(
             c,
             PATHS.AUTH.SIGN_IN,

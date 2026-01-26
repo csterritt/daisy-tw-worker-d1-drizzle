@@ -3,9 +3,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { Context } from 'hono'
-import { addCookie } from './cookie-support'
 
 import { COOKIES, HTML_STATUS } from '../constants'
+import { addCookie } from './cookie-support'
 
 /**
  * Helper function to redirect with a message cookie

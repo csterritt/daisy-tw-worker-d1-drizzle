@@ -37,8 +37,8 @@ export interface Bindings {
   SMTP_SERVER_HOST?: string
   SMTP_SERVER_PORT?: string
   SMTP_SERVER_USER?: string
-  SMTP_SERVER_PASS?: string
   SMTP_SERVER_PASSWORD?: string
+  ENABLE_TEST_ROUTES?: string
 }
 
 /**

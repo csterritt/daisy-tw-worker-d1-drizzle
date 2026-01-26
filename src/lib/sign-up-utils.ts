@@ -30,6 +30,42 @@ const DUPLICATE_EMAIL_PATTERNS = [
  */
 const CONSTRAINT_ERROR_PATTERNS = ['constraint', 'sqlite_constraint']
 
+interface SignUpErrorResponse {
+  error?: { message?: string }
+}
+
+interface StatusResponse {
+  status: number
+}
+
+const isErrorResponse = (
+  response: unknown
+): response is SignUpErrorResponse => {
+  return (
+    typeof response === 'object' &&
+    response !== null &&
+    'error' in response &&
+    typeof (response as SignUpErrorResponse).error === 'object'
+  )
+}
+
+export const getResponseStatus = (response: unknown): number | null => {
+  if (response instanceof Response) {
+    return response.status
+  }
+
+  if (
+    typeof response === 'object' &&
+    response !== null &&
+    'status' in response &&
+    typeof (response as StatusResponse).status === 'number'
+  ) {
+    return (response as StatusResponse).status
+  }
+
+  return null
+}
+
 /**
  * Check if an error message indicates a duplicate email
  * @param errorMessage - Error message to check
@@ -87,17 +123,11 @@ export const handleSignUpResponseError = (
   email: string,
   fallbackPath: string
 ): Response | null => {
-  if (
-    typeof response !== 'object' ||
-    response === null ||
-    !('error' in response)
-  ) {
+  if (!isErrorResponse(response)) {
     return null
   }
 
-  const responseWithError = response as { error?: { message?: string } }
-  const errorMessage = responseWithError.error?.message || 'Registration failed'
-  console.log('Better-auth error response:', errorMessage)
+  const errorMessage = response.error?.message || 'Registration failed'
 
   if (isDuplicateEmailError(errorMessage)) {
     addCookie(c, COOKIES.EMAIL_ENTERED, email)

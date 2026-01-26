@@ -30,6 +30,7 @@ import {
 import {
   handleSignUpResponseError,
   handleSignUpApiError,
+  getResponseStatus,
   updateAccountTimestampAfterSignUp,
   redirectToAwaitVerification,
 } from '../../lib/sign-up-utils'
@@ -124,8 +125,8 @@ export const handleGatedInterestSignUp = (
             return errorResponse
           }
 
-          if ('status' in signUpResponse && signUpResponse.status !== 200) {
-            console.log('Better-auth non-200 status:', signUpResponse.status)
+          const responseStatus = getResponseStatus(signUpResponse)
+          if (responseStatus !== null && responseStatus !== 200) {
             return redirectWithError(
               c,
               PATHS.AUTH.SIGN_UP,
@@ -161,14 +162,11 @@ export const handleGatedInterestSignUp = (
     PATHS.AUTH.INTEREST_SIGN_UP,
     secureHeaders(STANDARD_SECURE_HEADERS),
     async (c) => {
-      console.log('🔧 handleInterestSignUp (both mode) called')
-
       // Check if user is already signed in
       const user = (c as unknown as { get: (key: string) => unknown }).get(
         'user'
       ) as { id: string } | null
       if (user) {
-        console.log('Already signed in')
         return redirectWithMessage(c, PATHS.PRIVATE, MESSAGES.ALREADY_SIGNED_IN)
       }
 
@@ -190,19 +188,13 @@ export const handleGatedInterestSignUp = (
 
       const email = data!.email as string
       const trimmedEmail = email.trim().toLowerCase()
-      console.log('Processing interest sign-up for email:', trimmedEmail)
 
       // Get database instance
       const db = c.get('db') as DrizzleClient
 
       try {
-        console.log('🔧 About to call addInterestedEmail for:', trimmedEmail)
         // Add email to interested emails list
         const addResult = await addInterestedEmail(db, trimmedEmail)
-        console.log(
-          '🔧 addInterestedEmail completed, result:',
-          addResult.isOk ? 'SUCCESS' : 'ERROR'
-        )
 
         if (addResult.isErr) {
           console.error(
@@ -219,7 +211,6 @@ export const handleGatedInterestSignUp = (
 
         if (!addResult.value) {
           // Email already exists in the list
-          console.log('Email already registered for interest:', trimmedEmail)
           return redirectWithMessage(
             c,
             PATHS.AUTH.SIGN_IN,
@@ -228,7 +219,6 @@ export const handleGatedInterestSignUp = (
         }
 
         // Successfully added to waitlist
-        console.log('Email successfully added to waitlist:', trimmedEmail)
         return redirectWithMessage(
           c,
           PATHS.AUTH.SIGN_IN,

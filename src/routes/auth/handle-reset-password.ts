@@ -35,7 +35,9 @@ export const handleResetPassword = (
             err = err?.substring(0, commaSpot) || 'Invalid input'
           }
 
-          const tokenEntered = (body as any)?.token as string | undefined
+          const rawBody = body as Record<string, unknown>
+          const tokenEntered =
+            typeof rawBody?.token === 'string' ? rawBody.token : undefined
           const target = tokenEntered
             ? `${PATHS.AUTH.RESET_PASSWORD}?token=${tokenEntered}`
             : PATHS.AUTH.FORGOT_PASSWORD
@@ -48,14 +50,12 @@ export const handleResetPassword = (
         const auth = createAuth(c.env)
 
         try {
-          const result = await auth.api.resetPassword({
+          await auth.api.resetPassword({
             body: {
               token,
               newPassword: password,
             },
           })
-
-          console.log('Reset password API result:', result)
 
           return redirectWithMessage(
             c,
@@ -66,19 +66,18 @@ export const handleResetPassword = (
           console.error('Password reset error:', error)
 
           // Check if it's a token validation error
-          if (error && typeof error === 'object' && 'message' in error) {
-            const errorMessage = (error as any).message
-            if (
-              errorMessage.includes('token') ||
-              errorMessage.includes('expired') ||
-              errorMessage.includes('invalid')
-            ) {
-              return redirectWithError(
-                c,
-                PATHS.AUTH.FORGOT_PASSWORD,
-                'The reset link is invalid or has expired. Please request a new password reset link.'
-              )
-            }
+          const errorMessage =
+            error instanceof Error ? error.message : String(error)
+          if (
+            errorMessage.includes('token') ||
+            errorMessage.includes('expired') ||
+            errorMessage.includes('invalid')
+          ) {
+            return redirectWithError(
+              c,
+              PATHS.AUTH.FORGOT_PASSWORD,
+              'The reset link is invalid or has expired. Please request a new password reset link.'
+            )
           }
 
           return redirectWithError(

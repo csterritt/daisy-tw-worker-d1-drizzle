@@ -33,35 +33,11 @@ type AppContext = Context<AppEnv>
  * @param app - Hono app instance
  */
 export const setupBetterAuth = (app: Hono<{ Bindings: Bindings }>): void => {
-  console.log('🔧 Setting up better-auth routes...')
-
   // Better-auth handler with enhanced debugging
   app.all('/api/auth/*', async (c: AppContext) => {
-    console.log('🔔 Better-auth route hit:', c.req.method, c.req.url)
-    console.log('🔧 Environment check:', {
-      PROJECT_DB: !!c.env.PROJECT_DB,
-      envKeys: Object.keys(c.env || {}), // PRODUCTION:REMOVE
-    })
-
     try {
-      console.log('🔧 Creating auth instance...')
       const auth = createAuth(c.env)
-      console.log('🔧 Auth instance created successfully')
-
-      console.log('🔧 Calling auth.handler with request...')
-      console.log('🔧 Request details:', {
-        method: c.req.method,
-        url: c.req.url,
-        headers: Object.fromEntries(c.req.raw.headers.entries()), // PRODUCTION:REMOVE
-      })
-
       const response = await auth.handler(c.req.raw)
-      console.log('✅ Auth handler response:', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()), // PRODUCTION:REMOVE
-      })
-
       return response
     } catch (error) {
       console.error('❌ Better-auth handler error:', error)
@@ -69,8 +45,6 @@ export const setupBetterAuth = (app: Hono<{ Bindings: Bindings }>): void => {
       return new Response('Internal Server Error', { status: 500 })
     }
   })
-
-  console.log('✅ Better-auth routes setup complete')
 }
 
 /**

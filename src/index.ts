@@ -53,6 +53,7 @@ import { handleSetDbFailures } from './routes/handle-set-db-failures' // PRODUCT
 import { testDatabaseRouter } from './routes/test/database' // PRODUCTION:REMOVE
 import { testSignUpModeRouter } from './routes/test/sign-up-mode' // PRODUCTION:REMOVE
 import { testSmtpRouter } from './routes/test/smtp-config' // PRODUCTION:REMOVE
+import { isTestRouteEnabled } from './lib/test-routes'
 
 /**
  * Validates that all required environment variables are set
@@ -79,12 +80,11 @@ const validateEnvironmentVariables = (): boolean => {
   }
 
   if (missingVars.length > 0) {
-    console.error('❌ ERROR: Missing required environment variables:')
-    for (const varName of missingVars) {
-      console.error(`   - ${varName}`)
-    }
     console.error(
-      '\nPlease set these environment variables before starting the application.'
+      `❌ ERROR: Missing required environment variables: ${missingVars.join(', ')}`
+    )
+    console.error(
+      'Please set these environment variables before starting the application.'
     )
     return false
   }
@@ -104,8 +104,11 @@ if (!validateEnvironmentVariables()) {
 
 const app = new Hono<{ Bindings: Bindings }>()
 
-const signUpMode = env.SIGN_UP_MODE
-console.log(`🔧 SIGN_UP_MODE: ${signUpMode}`)
+const isTestRouteEnabledFlag = isTestRouteEnabled({
+  nodeEnv: env.NODE_ENV,
+  enableTestRoutes: (env as unknown as Bindings).ENABLE_TEST_ROUTES,
+  playwright: (env as unknown as Bindings).PLAYWRIGHT,
+})
 
 let alternateOrigin = /http:\/\/localhost(:\d+)?$/ // PRODUCTION:REMOVE
 // PRODUCTION:REMOVE-NEXT-LINE
@@ -119,7 +122,7 @@ app.use(secureHeaders({ referrerPolicy: 'strict-origin-when-cross-origin' }))
 app.use(async (c, next) => {
   // Skip CSRF for test endpoints // PRODUCTION:REMOVE
   // PRODUCTION:REMOVE-NEXT-LINE
-  if (c.req.path.startsWith('/test/')) {
+  if (isTestRouteEnabledFlag && c.req.path.startsWith('/test/')) {
     return next() // PRODUCTION:REMOVE
   } // PRODUCTION:REMOVE
 
@@ -165,13 +168,9 @@ app.use(async (c, next) => {
 })
 
 // Setup auth middleware and routes
-console.log('🔧 Setting up auth middleware...')
 setupBetterAuthMiddleware(app)
-console.log('🔧 Setting up auth response interceptor...')
 setupBetterAuthResponseInterceptor(app) // Must come before setupBetterAuth to intercept responses
-console.log('🔧 About to call setupBetterAuth...')
 setupBetterAuth(app)
-console.log('🔧 setupBetterAuth call completed')
 
 // Route declarations
 buildRoot(app) // PRODUCTION:REMOVE
@@ -211,14 +210,16 @@ buildDeleteConfirm(app)
 handleChangePassword(app)
 handleDeleteAccount(app)
 
-handleSetClock(app) // PRODUCTION:REMOVE
-handleResetClock(app) // PRODUCTION:REMOVE
-handleSetDbFailures(app) // PRODUCTION:REMOVE
+if (isTestRouteEnabledFlag) {
+  handleSetClock(app) // PRODUCTION:REMOVE
+  handleResetClock(app) // PRODUCTION:REMOVE
+  handleSetDbFailures(app) // PRODUCTION:REMOVE
 
-// Test-only database endpoints // PRODUCTION:REMOVE
-app.route('/test/database', testDatabaseRouter) // PRODUCTION:REMOVE
-app.route('/test/sign-up-mode', testSignUpModeRouter) // PRODUCTION:REMOVE
-app.route('/test', testSmtpRouter) // PRODUCTION:REMOVE
+  // Test-only database endpoints // PRODUCTION:REMOVE
+  app.route('/test/database', testDatabaseRouter) // PRODUCTION:REMOVE
+  app.route('/test/sign-up-mode', testSignUpModeRouter) // PRODUCTION:REMOVE
+  app.route('/test', testSmtpRouter) // PRODUCTION:REMOVE
+}
 
 // this MUST be the last route declared!
 build404(app)
