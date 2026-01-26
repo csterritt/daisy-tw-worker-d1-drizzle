@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
+import { env } from 'cloudflare:workers'
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
 import { csrf } from 'hono/csrf'
@@ -71,7 +72,8 @@ const validateEnvironmentVariables = (): boolean => {
   const missingVars: string[] = []
 
   for (const varName of requiredVars) {
-    if (!process.env[varName] || process.env[varName]?.trim() === '') {
+    // @ts-ignore
+    if (!env[varName] || env[varName]?.trim() === '') {
       missingVars.push(varName)
     }
   }
@@ -102,13 +104,13 @@ if (!validateEnvironmentVariables()) {
 
 const app = new Hono<{ Bindings: Bindings }>()
 
-const signUpMode = process.env.SIGN_UP_MODE
+const signUpMode = env.SIGN_UP_MODE
 console.log(`🔧 SIGN_UP_MODE: ${signUpMode}`)
 
 let alternateOrigin = /http:\/\/localhost(:\d+)?$/ // PRODUCTION:REMOVE
 // PRODUCTION:REMOVE-NEXT-LINE
-if (process.env.ALTERNATE_ORIGIN) {
-  alternateOrigin = new RegExp(process.env.ALTERNATE_ORIGIN) // PRODUCTION:REMOVE
+if (env.ALTERNATE_ORIGIN) {
+  alternateOrigin = new RegExp(env.ALTERNATE_ORIGIN) // PRODUCTION:REMOVE
 } // PRODUCTION:REMOVE
 
 // Apply middleware
@@ -175,22 +177,22 @@ console.log('🔧 setupBetterAuth call completed')
 buildRoot(app) // PRODUCTION:REMOVE
 buildPrivate(app)
 buildSignIn(app)
-if (process.env.SIGN_UP_MODE === SIGN_UP_MODES.OPEN_SIGN_UP) {
+if (env.SIGN_UP_MODE === SIGN_UP_MODES.OPEN_SIGN_UP) {
   buildSignUp(app)
   handleSignUp(app)
   buildAwaitVerification(app)
   handleResendEmail(app)
-} else if (process.env.SIGN_UP_MODE === SIGN_UP_MODES.GATED_SIGN_UP) {
+} else if (env.SIGN_UP_MODE === SIGN_UP_MODES.GATED_SIGN_UP) {
   buildGatedSignUp(app)
   handleGatedSignUp(app)
   buildAwaitVerification(app)
   handleResendEmail(app)
-} else if (process.env.SIGN_UP_MODE === SIGN_UP_MODES.INTEREST_SIGN_UP) {
+} else if (env.SIGN_UP_MODE === SIGN_UP_MODES.INTEREST_SIGN_UP) {
   buildInterestSignUp(app)
   handleInterestSignUp(app)
   buildAwaitVerification(app)
   handleResendEmail(app)
-} else if (process.env.SIGN_UP_MODE === SIGN_UP_MODES.BOTH_SIGN_UP) {
+} else if (env.SIGN_UP_MODE === SIGN_UP_MODES.BOTH_SIGN_UP) {
   buildGatedInterestSignUp(app)
   handleGatedInterestSignUp(app)
   buildAwaitVerification(app)

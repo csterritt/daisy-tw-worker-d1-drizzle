@@ -42,11 +42,12 @@ interface EmailConfig {
 const getEmailConfig = (env: Bindings): EmailConfig => {
   // More robust test environment detection
   const isTestMode =
-    env.NODE_ENV === 'test' ||
-    env.NODE_ENV === 'development' ||
-    env.PLAYWRIGHT === '1' || // Playwright sets this
-    process.argv.includes('playwright') || // Running via playwright
-    typeof (globalThis as any).test !== 'undefined' // Test environment
+    // false PROCESS:UNCOMMENT
+    env.NODE_ENV === 'test' || // PRODUCTION:REMOVE
+    env.NODE_ENV === 'development' || // PRODUCTION:REMOVE
+    env.PLAYWRIGHT === '1' || // Playwright sets this PROCESS:REMOVE
+    process.argv.includes('playwright') || // Running via playwright PROCESS:REMOVE
+    typeof (globalThis as any).test !== 'undefined' // Test environment PROCESS:REMOVE
 
   return {
     isTestMode,
