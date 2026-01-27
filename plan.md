@@ -1,61 +1,23 @@
-# Fix: Atomic Sign-Up Code Consumption
+# Fix: Retry wrapper doesn't actually retry on Result failures
 
 ## Problem
 
-Gated sign-up codes are not consumed atomically. The current flow:
+`async-retry` only retries when the operation **throws**. Our DB operations return `Result.err()` on failure (no throw), so `withRetry` sees a resolved promise and never retries.
 
-1. `validateSingleUseCode` (SELECT) - checks code exists
-2. `signUpEmail` - creates account
-3. `consumeSingleUseCode` (DELETE) - removes code
+## Assumptions
 
-Race condition: Two concurrent requests can both pass step 1 before either reaches step 3.
-
-## Solution
-
-Use an atomic UPDATE with a "claimed by email" pattern instead of SELECT + DELETE.
+- Fix at the `withRetry` level (not lower-level DB calls).
+- Retry all errors for now; transient-error filtering can be added later.
+- Add a basic unit test for retry behavior.
 
 ## Plan
 
-### 1. Schema Change
-
-Add `email` column to `singleUseCode` table:
-
-- Type: `text`, nullable, default `null`
-- `null` = unclaimed, non-null = claimed by that email
-
-### 2. New DB Function
-
-Create `claimSingleUseCode(db, code, email)` in `db-access.ts`:
-
-```sql
-UPDATE singleUseCode SET email = ? WHERE code = ? AND email IS NULL
-```
-
-- Returns `true` if `rowsAffected === 1` (this request won the race)
-- Returns `false` if `rowsAffected === 0` (code invalid or already claimed)
-
-### 3. Update Handlers
-
-Modify `handle-gated-sign-up.ts` and `handle-gated-interest-sign-up.ts`:
-
-- Replace `validateSingleUseCode` + `consumeSingleUseCode` with single `claimSingleUseCode` call
-- Claim the code **before** calling `auth.api.signUpEmail`
-- If claim fails → reject with "invalid or expired code" message
-
-### 4. Remove Dead Code
-
-- Remove `validateSingleUseCode` export (no longer needed)
-- Keep `consumeSingleUseCode` if used elsewhere, or remove
-
-## Files to Modify
-
-- `src/db/schema.ts` - add email column
-- `src/lib/db-access.ts` - add `claimSingleUseCode`, remove/deprecate `validateSingleUseCode`
-- `src/routes/auth/handle-gated-sign-up.ts` - use new atomic claim
-- `src/routes/auth/handle-gated-interest-sign-up.ts` - use new atomic claim
+1. **Modify `withRetry`** — Inside the retry callback, check if the result is `Result.err`; if so, throw the error so `async-retry` sees it and retries.
+2. **Wrap final error** — After retries exhaust, catch the thrown error and return `Result.err`.
+3. **Add unit test** — Confirm that transient failures trigger retries and eventually succeed or fail after max attempts.
 
 ## Pitfalls
 
-- **Burned codes on sign-up failure**: If claim succeeds but `signUpEmail` fails, code is consumed. Accept this or add rollback logic.
-- **Migration**: Run `drizzle-kit generate` after schema change to create migration.
-- **Existing codes**: Will have `email = NULL`, which is correct (unclaimed).
+- **Non-transient errors waste retries** — e.g., "unique constraint violated" shouldn't retry. Consider filtering later.
+- **Double-wrapping errors** — Ensure the final `Result.err` contains the original error, not a nested wrapper.
+- **Test isolation** — Mock the DB with a counter to simulate transient failures; avoid real DB calls in unit tests.

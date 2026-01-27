@@ -40,7 +40,13 @@ const withRetry = async <T>(
   operation: () => Promise<Result<T, Error>>
 ): Promise<Result<T, Error>> => {
   try {
-    return await retry(operation, STANDARD_RETRY_OPTIONS)
+    return await retry(async () => {
+      const result = await operation()
+      if (result.isErr) {
+        throw result.error
+      }
+      return result
+    }, STANDARD_RETRY_OPTIONS)
   } catch (err) {
     console.log(`${operationName} final error:`, err)
     return Result.err(err instanceof Error ? err : new Error(String(err)))
