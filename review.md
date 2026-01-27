@@ -8,12 +8,6 @@
 
 ## Answer (Findings)
 
-### Medium
-
-- **User-facing errors may leak internal details.** Raw `errorMessage` from auth responses is returned to the user; prefer generic messages and log the raw error. @src/lib/sign-up-utils.ts#120-145
-- **Callback URL is not validated.** `callbackUrl` from query is forwarded to verification without allowlisting; validate against trusted origins to avoid open redirects. @src/routes/auth/build-email-confirmation.tsx#129-149
-- **Type safety gaps (`any`/casts) reduce maintainability.** Several helpers use `Context<any, any, any>` and `as any`, undermining strict typing. @src/lib/cookie-support.ts#21-45 @src/lib/redirects.tsx#17-41 @src/routes/auth/handle-interest-sign-up.ts#44-51
-
 ### Low / Maintainability / Performance
 
 - **Sign-up handlers and pages are duplicated**, raising divergence risk; consider shared helpers/components. @src/routes/auth/handle-gated-sign-up.ts#37-133 @src/routes/auth/handle-gated-interest-sign-up.ts#52-148 @src/routes/auth/build-gated-sign-up.tsx#29-139 @src/routes/auth/build-gated-interest-sign-up.tsx#29-189

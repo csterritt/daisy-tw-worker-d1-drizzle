@@ -5,27 +5,11 @@
 import { Hono } from 'hono'
 import { secureHeaders } from 'hono/secure-headers'
 
-import { createAuth } from '../../lib/auth'
 import { redirectWithError } from '../../lib/redirects'
 import { PATHS, STANDARD_SECURE_HEADERS, MESSAGES } from '../../constants'
 import type { Bindings } from '../../local-types'
-import { createDbClient } from '../../db/client'
-import { claimSingleUseCode } from '../../lib/db-access'
 import { validateRequest, GatedSignUpFormSchema } from '../../lib/validators'
-import {
-  handleSignUpResponseError,
-  handleSignUpApiError,
-  getResponseStatus,
-  updateAccountTimestampAfterSignUp,
-  redirectToAwaitVerification,
-} from '../../lib/sign-up-utils'
-
-interface GatedSignUpData {
-  code: string
-  name: string
-  email: string
-  password: string
-}
+import { processGatedSignUp, GatedSignUpData } from '../../lib/sign-up-utils'
 
 /**
  * Handle gated sign-up form submission with code validation
@@ -48,84 +32,7 @@ export const handleGatedSignUp = (app: Hono<{ Bindings: Bindings }>): void => {
           )
         }
 
-        const { code, name, email, password } = data as GatedSignUpData
-        const trimmedCode = code.trim()
-        const dbClient = createDbClient(c.env.PROJECT_DB)
-
-        // Atomically claim the sign-up code before creating account
-        const claimResult = await claimSingleUseCode(
-          dbClient,
-          trimmedCode,
-          email
-        )
-
-        if (claimResult.isErr) {
-          console.error(
-            'Database error claiming sign-up code:',
-            claimResult.error
-          )
-          return redirectWithError(
-            c,
-            PATHS.AUTH.SIGN_UP,
-            MESSAGES.GENERIC_ERROR_TRY_AGAIN
-          )
-        }
-
-        if (!claimResult.value) {
-          return redirectWithError(
-            c,
-            PATHS.AUTH.SIGN_UP,
-            'Invalid or expired sign-up code. Please check your code and try again.'
-          )
-        }
-
-        // Code claimed successfully - proceed with account creation
-        const auth = createAuth(c.env)
-
-        try {
-          const signUpResponse = await auth.api.signUpEmail({
-            body: {
-              name,
-              email,
-              password,
-              callbackURL: `${PATHS.AUTH.SIGN_IN}/true`,
-            },
-          })
-
-          if (!signUpResponse) {
-            return redirectWithError(
-              c,
-              PATHS.AUTH.SIGN_UP,
-              'Failed to create account. Please try again.'
-            )
-          }
-
-          const errorResponse = handleSignUpResponseError(
-            c,
-            signUpResponse,
-            email,
-            PATHS.AUTH.SIGN_UP
-          )
-
-          if (errorResponse) {
-            return errorResponse
-          }
-
-          const responseStatus = getResponseStatus(signUpResponse)
-          if (responseStatus !== null && responseStatus !== 200) {
-            return redirectWithError(
-              c,
-              PATHS.AUTH.SIGN_UP,
-              MESSAGES.GENERIC_ERROR_TRY_AGAIN
-            )
-          }
-        } catch (apiError: unknown) {
-          return handleSignUpApiError(c, apiError, email, PATHS.AUTH.SIGN_UP)
-        }
-
-        await updateAccountTimestampAfterSignUp(dbClient, email)
-
-        return redirectToAwaitVerification(c, email)
+        return await processGatedSignUp(c, data as GatedSignUpData)
       } catch (error) {
         console.error('Gated sign-up error:', error)
         return redirectWithError(

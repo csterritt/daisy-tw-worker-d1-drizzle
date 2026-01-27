@@ -10,33 +10,22 @@
 import { Hono } from 'hono'
 import { secureHeaders } from 'hono/secure-headers'
 
-import { createAuth } from '../../lib/auth'
 import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
-import { PATHS, STANDARD_SECURE_HEADERS, MESSAGES } from '../../constants'
+import {
+  PATHS,
+  STANDARD_SECURE_HEADERS,
+  MESSAGES,
+  COOKIES,
+} from '../../constants'
 import type { Bindings, DrizzleClient } from '../../local-types'
-import { createDbClient } from '../../db/client'
-import { claimSingleUseCode, addInterestedEmail } from '../../lib/db-access'
+import { addInterestedEmail } from '../../lib/db-access'
 import { addCookie } from '../../lib/cookie-support'
-import { COOKIES } from '../../constants'
 import {
   validateRequest,
   GatedSignUpFormSchema,
   InterestSignUpFormSchema,
 } from '../../lib/validators'
-import {
-  handleSignUpResponseError,
-  handleSignUpApiError,
-  getResponseStatus,
-  updateAccountTimestampAfterSignUp,
-  redirectToAwaitVerification,
-} from '../../lib/sign-up-utils'
-
-interface GatedSignUpData {
-  code: string
-  name: string
-  email: string
-  password: string
-}
+import { processGatedSignUp, GatedSignUpData } from '../../lib/sign-up-utils'
 
 /**
  * Handle gated sign-up form submission with code validation
@@ -62,84 +51,7 @@ export const handleGatedInterestSignUp = (
           )
         }
 
-        const { code, name, email, password } = data as GatedSignUpData
-        const trimmedCode = code.trim()
-        const dbClient = createDbClient(c.env.PROJECT_DB)
-
-        // Atomically claim the sign-up code before creating account
-        const claimResult = await claimSingleUseCode(
-          dbClient,
-          trimmedCode,
-          email
-        )
-
-        if (claimResult.isErr) {
-          console.error(
-            'Database error claiming sign-up code:',
-            claimResult.error
-          )
-          return redirectWithError(
-            c,
-            PATHS.AUTH.SIGN_UP,
-            MESSAGES.GENERIC_ERROR_TRY_AGAIN
-          )
-        }
-
-        if (!claimResult.value) {
-          return redirectWithError(
-            c,
-            PATHS.AUTH.SIGN_UP,
-            'Invalid or expired sign-up code. Please check your code and try again.'
-          )
-        }
-
-        // Code claimed successfully - proceed with account creation
-        const auth = createAuth(c.env)
-
-        try {
-          const signUpResponse = await auth.api.signUpEmail({
-            body: {
-              name,
-              email,
-              password,
-              callbackURL: `${PATHS.AUTH.SIGN_IN}/true`,
-            },
-          })
-
-          if (!signUpResponse) {
-            return redirectWithError(
-              c,
-              PATHS.AUTH.SIGN_UP,
-              'Failed to create account. Please try again.'
-            )
-          }
-
-          const errorResponse = handleSignUpResponseError(
-            c,
-            signUpResponse,
-            email,
-            PATHS.AUTH.SIGN_UP
-          )
-
-          if (errorResponse) {
-            return errorResponse
-          }
-
-          const responseStatus = getResponseStatus(signUpResponse)
-          if (responseStatus !== null && responseStatus !== 200) {
-            return redirectWithError(
-              c,
-              PATHS.AUTH.SIGN_UP,
-              MESSAGES.GENERIC_ERROR_TRY_AGAIN
-            )
-          }
-        } catch (apiError: unknown) {
-          return handleSignUpApiError(c, apiError, email, PATHS.AUTH.SIGN_UP)
-        }
-
-        await updateAccountTimestampAfterSignUp(dbClient, email)
-
-        return redirectToAwaitVerification(c, email)
+        return await processGatedSignUp(c, data as GatedSignUpData)
       } catch (error) {
         console.error('Gated sign-up error:', error)
         return redirectWithError(
@@ -168,7 +80,10 @@ export const handleGatedInterestSignUp = (
       const body = await c.req.parseBody()
       const [ok, data, err] = validateRequest(body, InterestSignUpFormSchema)
       if (!ok) {
-        const emailEntered = (body as any)?.email as string
+        const emailEntered =
+          typeof body === 'object' && body !== null && 'email' in body
+            ? String(body.email)
+            : undefined
         if (emailEntered) {
           addCookie(c, COOKIES.EMAIL_ENTERED, emailEntered)
         }
