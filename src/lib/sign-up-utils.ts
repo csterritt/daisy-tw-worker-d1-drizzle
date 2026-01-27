@@ -128,6 +128,7 @@ export const handleSignUpResponseError = (
   }
 
   const errorMessage = response.error?.message || 'Registration failed'
+  console.error('Sign-up response error:', errorMessage)
 
   if (isDuplicateEmailError(errorMessage)) {
     addCookie(c, COOKIES.EMAIL_ENTERED, email)
@@ -138,11 +139,7 @@ export const handleSignUpResponseError = (
     )
   }
 
-  return redirectWithError(
-    c,
-    fallbackPath,
-    `Registration failed: ${errorMessage}`
-  )
+  return redirectWithError(c, fallbackPath, MESSAGES.REGISTRATION_GENERIC_ERROR)
 }
 
 /**

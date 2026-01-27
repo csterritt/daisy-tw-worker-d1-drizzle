@@ -1,23 +1,22 @@
-# Fix: Callback URL is not validated
+# Fix: User-facing errors may leak internal details
 
 ## Problem
 
-In `/auth/verify-email`, `callbackUrl` from the query string is passed directly to `auth.api.verifyEmail()` without validation. An attacker could craft a malicious verification link that redirects users to an external site after email verification (open redirect vulnerability).
+In `handleSignUpResponseError`, the raw `errorMessage` from auth responses is returned directly to users via `Registration failed: ${errorMessage}`. This can expose internal details (DB errors, stack traces, etc.) to end users.
 
 ## Assumptions
 
-- Only same-origin redirects should be allowed.
-- If `callbackUrl` is invalid or external, fall back to a safe default (e.g., sign-in page).
-- Create a reusable validation helper for future use.
+- Users should see generic, friendly error messages.
+- Raw error details should be logged server-side for debugging.
+- The `handleSignUpApiError` function already uses a generic message (`MESSAGES.REGISTRATION_GENERIC_ERROR`), so only `handleSignUpResponseError` needs fixing.
 
 ## Plan
 
-1. **Create `validateCallbackUrl` helper** in `src/lib/url-validation.ts` — Check if URL is relative or same-origin; return the URL if valid, otherwise return a safe default.
-2. **Apply validation in `build-email-confirmation.tsx`** — Wrap `callbackUrl` with the validator before passing to `verifyEmail`.
-3. **Add unit test** — Confirm that external URLs are rejected and relative/same-origin URLs are allowed.
+1. **Log the raw error** in `handleSignUpResponseError` before returning a response.
+2. **Return a generic message** instead of interpolating `errorMessage` into the user-facing string.
+3. **Add unit test** to verify that internal error details are not exposed in the response.
 
 ## Pitfalls
 
-- **Relative URL edge cases** — URLs like `//evil.com` are protocol-relative and should be rejected.
-- **URL parsing errors** — Malformed URLs can throw; handle gracefully.
-- **Existing behavior** — The `callbackURL` values set in sign-up handlers are relative paths, which should continue to work.
+- **Reduced debugging clarity for users** — If users can't describe their error, support gets harder. Mitigate by logging with a correlation ID if needed later.
+- **Over-generalization** — Some errors (like "invalid email format") are safe to show. Consider a whitelist of safe error messages if UX suffers.
