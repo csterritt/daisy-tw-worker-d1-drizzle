@@ -16,6 +16,7 @@ import { setupNoCacheHeaders } from '../../lib/setup-no-cache-headers'
 import { redirectWithMessage } from '../../lib/redirects'
 import { retrieveCookie, removeCookie } from '../../lib/cookie-support'
 import { createAuth } from '../../lib/auth'
+import { validateCallbackUrl } from '../../lib/url-validation'
 
 /**
  * Render the JSX for the email confirmation success page.
@@ -127,7 +128,9 @@ export const buildEmailConfirmation = (
       setupNoCacheHeaders(c)
 
       const token = c.req.query('token')
-      const callbackUrl = c.req.query('callbackUrl')
+      const rawCallbackUrl = c.req.query('callbackUrl')
+      const requestOrigin = new URL(c.req.url).origin
+      const callbackUrl = validateCallbackUrl(rawCallbackUrl, requestOrigin)
 
       if (!token) {
         return c.render(
