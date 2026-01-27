@@ -15,11 +15,7 @@ import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
 import { PATHS, STANDARD_SECURE_HEADERS, MESSAGES } from '../../constants'
 import type { Bindings, DrizzleClient } from '../../local-types'
 import { createDbClient } from '../../db/client'
-import {
-  validateSingleUseCode,
-  consumeSingleUseCode,
-  addInterestedEmail,
-} from '../../lib/db-access'
+import { claimSingleUseCode, addInterestedEmail } from '../../lib/db-access'
 import { addCookie } from '../../lib/cookie-support'
 import { COOKIES } from '../../constants'
 import {
@@ -70,13 +66,17 @@ export const handleGatedInterestSignUp = (
         const trimmedCode = code.trim()
         const dbClient = createDbClient(c.env.PROJECT_DB)
 
-        // Validate the sign-up code exists (don't consume yet)
-        const codeResult = await validateSingleUseCode(dbClient, trimmedCode)
+        // Atomically claim the sign-up code before creating account
+        const claimResult = await claimSingleUseCode(
+          dbClient,
+          trimmedCode,
+          email
+        )
 
-        if (codeResult.isErr) {
+        if (claimResult.isErr) {
           console.error(
-            'Database error validating sign-up code:',
-            codeResult.error
+            'Database error claiming sign-up code:',
+            claimResult.error
           )
           return redirectWithError(
             c,
@@ -85,7 +85,7 @@ export const handleGatedInterestSignUp = (
           )
         }
 
-        if (!codeResult.value) {
+        if (!claimResult.value) {
           return redirectWithError(
             c,
             PATHS.AUTH.SIGN_UP,
@@ -93,7 +93,7 @@ export const handleGatedInterestSignUp = (
           )
         }
 
-        // Code is valid - proceed with account creation
+        // Code claimed successfully - proceed with account creation
         const auth = createAuth(c.env)
 
         try {
@@ -135,12 +135,6 @@ export const handleGatedInterestSignUp = (
           }
         } catch (apiError: unknown) {
           return handleSignUpApiError(c, apiError, email, PATHS.AUTH.SIGN_UP)
-        }
-
-        // Account created successfully - now consume the code
-        const consumeResult = await consumeSingleUseCode(dbClient, trimmedCode)
-        if (consumeResult.isErr) {
-          console.error('Failed to consume sign-up code:', consumeResult.error)
         }
 
         await updateAccountTimestampAfterSignUp(dbClient, email)

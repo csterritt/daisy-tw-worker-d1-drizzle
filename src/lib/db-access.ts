@@ -8,7 +8,7 @@
  */
 import retry from 'async-retry'
 import Result from 'true-myth/result'
-import { eq } from 'drizzle-orm'
+import { eq, and, isNull } from 'drizzle-orm'
 
 import { user, account, singleUseCode, interestedEmail } from '../db/schema'
 import { STANDARD_RETRY_OPTIONS } from '../constants'
@@ -143,56 +143,34 @@ const updateAccountTimestampActual = async (
 }
 
 /**
- * Validate a single-use code exists (without consuming it)
+ * Atomically claim a single-use code for an email address.
+ * Uses UPDATE with WHERE email IS NULL to ensure only one request wins the race.
  * @param db - Database instance
- * @param code - The code to validate
- * @returns Promise<Result<boolean, Error>> - true if code exists, false if not
+ * @param code - The code to claim
+ * @param email - The email address claiming the code
+ * @returns Promise<Result<boolean, Error>> - true if code was claimed, false if invalid or already claimed
  */
-export const validateSingleUseCode = (
+export const claimSingleUseCode = (
   db: DrizzleClient,
-  code: string
+  code: string,
+  email: string
 ): Promise<Result<boolean, Error>> =>
-  withRetry('validateSingleUseCode', () =>
-    validateSingleUseCodeActual(db, code)
+  withRetry('claimSingleUseCode', () =>
+    claimSingleUseCodeActual(db, code, email)
   )
 
-const validateSingleUseCodeActual = async (
+const claimSingleUseCodeActual = async (
   db: DrizzleClient,
-  code: string
+  code: string,
+  email: string
 ): Promise<Result<boolean, Error>> => {
   try {
     const result = await db
-      .select({ code: singleUseCode.code })
-      .from(singleUseCode)
-      .where(eq(singleUseCode.code, code))
-    return Result.ok(result.length === 1)
-  } catch (e) {
-    return Result.err(e instanceof Error ? e : new Error(String(e)))
-  }
-}
-
-/**
- * Consume a single-use code (delete it from the database)
- * @param db - Database instance
- * @param code - The code to consume
- * @returns Promise<Result<boolean, Error>> - true if code existed and was consumed, false if code didn't exist
- */
-export const consumeSingleUseCode = (
-  db: DrizzleClient,
-  code: string
-): Promise<Result<boolean, Error>> =>
-  withRetry('consumeSingleUseCode', () => consumeSingleUseCodeActual(db, code))
-
-const consumeSingleUseCodeActual = async (
-  db: DrizzleClient,
-  code: string
-): Promise<Result<boolean, Error>> => {
-  try {
-    const result = await db
-      .delete(singleUseCode)
-      .where(eq(singleUseCode.code, code))
-    const rowsDeleted = result.meta?.changes || 0
-    return Result.ok(rowsDeleted === 1)
+      .update(singleUseCode)
+      .set({ email })
+      .where(and(eq(singleUseCode.code, code), isNull(singleUseCode.email)))
+    const rowsUpdated = result.meta?.changes || 0
+    return Result.ok(rowsUpdated === 1)
   } catch (e) {
     return Result.err(e instanceof Error ? e : new Error(String(e)))
   }

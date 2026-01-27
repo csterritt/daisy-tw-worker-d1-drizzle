@@ -5,7 +5,7 @@
 import { Hono } from 'hono'
 import { secureHeaders } from 'hono/secure-headers'
 
-import { eq } from 'drizzle-orm'
+import { eq, and, isNull } from 'drizzle-orm'
 
 import { createDbClient } from '../../db/client'
 import {
@@ -283,7 +283,7 @@ testDatabaseRouter.get(
       const result = await db
         .select({ code: singleUseCode.code })
         .from(singleUseCode)
-        .where(eq(singleUseCode.code, code))
+        .where(and(eq(singleUseCode.code, code), isNull(singleUseCode.email)))
 
       return c.json({
         success: true,
