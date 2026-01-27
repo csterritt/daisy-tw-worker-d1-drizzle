@@ -45,7 +45,10 @@ export const handleInterestSignUp = (
         const body = await c.req.parseBody()
         const [ok, data, err] = validateRequest(body, InterestSignUpFormSchema)
         if (!ok) {
-          const emailEntered = (body as any)?.email as string
+          const emailEntered =
+            typeof body === 'object' && body !== null && 'email' in body
+              ? String(body.email)
+              : undefined
           if (emailEntered) {
             addCookie(c, COOKIES.EMAIL_ENTERED, emailEntered)
           }

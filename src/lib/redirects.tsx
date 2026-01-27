@@ -5,6 +5,7 @@
 import { Context } from 'hono'
 
 import { COOKIES, HTML_STATUS } from '../constants'
+import { Bindings } from '../local-types'
 import { addCookie } from './cookie-support'
 
 /**
@@ -14,8 +15,8 @@ import { addCookie } from './cookie-support'
  * @param message - The message to display
  * @returns Response object with redirect and cookie
  */
-export const redirectWithMessage = (
-  c: Context<any, any, any>,
+export const redirectWithMessage = <E extends { Bindings: Bindings }>(
+  c: Context<E>,
   redirectUrl: string,
   message: string
 ): Response => {
@@ -33,8 +34,8 @@ export const redirectWithMessage = (
  * @param errorMessage - The error message to display
  * @returns Response object with redirect and cookie
  */
-export const redirectWithError = (
-  c: Context<any, any, any>,
+export const redirectWithError = <E extends { Bindings: Bindings }>(
+  c: Context<E>,
   redirectUrl: string,
   errorMessage: string
 ): Response => {

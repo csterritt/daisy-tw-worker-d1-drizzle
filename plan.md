@@ -1,22 +1,27 @@
-# Fix: User-facing errors may leak internal details
+# Fix: Type safety gaps (`any`/casts) reduce maintainability
 
 ## Problem
 
-In `handleSignUpResponseError`, the raw `errorMessage` from auth responses is returned directly to users via `Registration failed: ${errorMessage}`. This can expose internal details (DB errors, stack traces, etc.) to end users.
+Several helpers use `Context<any, any, any>` and `as any` casts, undermining TypeScript's strict typing:
+
+- `cookie-support.ts` — `Context<E, any, any>` in all three functions
+- `redirects.tsx` — `Context<any, any, any>` in both redirect functions
+- `handle-interest-sign-up.ts` — `(body as any)?.email` cast
 
 ## Assumptions
 
-- Users should see generic, friendly error messages.
-- Raw error details should be logged server-side for debugging.
-- The `handleSignUpApiError` function already uses a generic message (`MESSAGES.REGISTRATION_GENERIC_ERROR`), so only `handleSignUpResponseError` needs fixing.
+- Use existing `AppContext` type from `local-types.ts` where full context is needed.
+- For generic helpers (cookies, redirects), use a minimal generic constraint that works across all callers.
+- The `body as any` cast can be replaced with proper type narrowing or a typed form body interface.
 
 ## Plan
 
-1. **Log the raw error** in `handleSignUpResponseError` before returning a response.
-2. **Return a generic message** instead of interpolating `errorMessage` into the user-facing string.
-3. **Add unit test** to verify that internal error details are not exposed in the response.
+1. **Update `cookie-support.ts`** — Replace `Context<E, any, any>` with `Context<E>` (Hono allows partial generics).
+2. **Update `redirects.tsx`** — Replace `Context<any, any, any>` with a generic `Context<E>` or use `AppContext`.
+3. **Fix `handle-interest-sign-up.ts`** — Replace `(body as any)?.email` with proper type guard or typed access.
+4. **Verify** — Run `tsc --noEmit` to confirm no type errors.
 
 ## Pitfalls
 
-- **Reduced debugging clarity for users** — If users can't describe their error, support gets harder. Mitigate by logging with a correlation ID if needed later.
-- **Over-generalization** — Some errors (like "invalid email format") are safe to show. Consider a whitelist of safe error messages if UX suffers.
+- **Generic constraints too strict** — If callers have different context shapes, overly strict types will break compilation. Use minimal constraints.
+- **Hono's Context generics** — Hono's `Context<E, P, I>` has 3 type params (Env, Path, Input). Using `Context<E>` with defaults should work.
