@@ -6,8 +6,8 @@ import { Hono } from 'hono'
 import { secureHeaders } from 'hono/secure-headers'
 
 import { createAuth } from '../../lib/auth'
-import { redirectWithError } from '../../lib/redirects'
-import { PATHS, STANDARD_SECURE_HEADERS, MESSAGES } from '../../constants'
+import { redirectWithError, redirectWithMessage } from '../../lib/redirects'
+import { PATHS, STANDARD_SECURE_HEADERS, COOKIES, MESSAGES } from '../../constants'
 import type { Bindings } from '../../local-types'
 import { createDbClient } from '../../db/client'
 import { validateRequest, SignUpFormSchema } from '../../lib/validators'
@@ -17,7 +17,9 @@ import {
   getResponseStatus,
   updateAccountTimestampAfterSignUp,
   redirectToAwaitVerification,
+  isSyntheticDuplicateResponse,
 } from '../../lib/sign-up-utils'
+import { addCookie } from '../../lib/cookie-support'
 
 interface SignUpData {
   name: string
@@ -76,6 +78,15 @@ export const handleSignUp = (app: Hono<{ Bindings: Bindings }>): void => {
 
           if (errorResponse) {
             return errorResponse
+          }
+
+          if (isSyntheticDuplicateResponse(signUpResponse)) {
+            addCookie(c, COOKIES.EMAIL_ENTERED, email)
+            return redirectWithMessage(
+              c,
+              PATHS.AUTH.AWAIT_VERIFICATION,
+              MESSAGES.ACCOUNT_ALREADY_EXISTS
+            )
           }
 
           const responseStatus = getResponseStatus(signUpResponse)

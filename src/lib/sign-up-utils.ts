@@ -54,6 +54,38 @@ interface StatusResponse {
   status: number
 }
 
+interface SyntheticDuplicateResponse {
+  token: null
+  user: { emailVerified: boolean }
+}
+
+/**
+ * Detect better-auth's synthetic duplicate response.
+ * When requireEmailVerification=true and a duplicate email is used,
+ * better-auth returns { token: null, user: { emailVerified: false } }
+ * instead of throwing an error.
+ */
+export const isSyntheticDuplicateResponse = (
+  response: unknown
+): response is SyntheticDuplicateResponse => {
+  if (
+    typeof response !== 'object' ||
+    response === null ||
+    response instanceof Response
+  ) {
+    return false
+  }
+
+  const r = response as Record<string, unknown>
+  return (
+    'token' in r &&
+    r.token === null &&
+    typeof r.user === 'object' &&
+    r.user !== null &&
+    (r.user as Record<string, unknown>).emailVerified === false
+  )
+}
+
 const isErrorResponse = (
   response: unknown
 ): response is SignUpErrorResponse => {
@@ -294,6 +326,15 @@ export const processGatedSignUp = async (
 
     if (errorResponse) {
       return errorResponse
+    }
+
+    if (isSyntheticDuplicateResponse(signUpResponse)) {
+      addCookie(c, COOKIES.EMAIL_ENTERED, email)
+      return redirectWithMessage(
+        c,
+        PATHS.AUTH.AWAIT_VERIFICATION,
+        MESSAGES.ACCOUNT_ALREADY_EXISTS
+      )
     }
 
     const responseStatus = getResponseStatus(signUpResponse)
