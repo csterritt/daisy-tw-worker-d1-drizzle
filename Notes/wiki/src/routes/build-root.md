@@ -1,8 +1,26 @@
 # build-root.tsx
 
-`src/routes/build-root.tsx`
+**Source:** `src/routes/build-root.tsx`
 
-Root / page builder (dev-only; PRODUCTION:REMOVE).
+## Purpose
+
+Root page (`/`) — the public landing page for the application.
+
+## Export
+
+### `buildRoot(app): void`
+
+Route: `GET /`
+
+Renders:
+
+- Welcome card with title "Welcome!"
+- Subtitle: "Worker, D1, Drizzle Project"
+- "Protected Content" button linking to `/private` — `data-testid='visit-private-action'`
+
+## Cross-references
+
+- [build-layout.md](build-layout.md) — layout wrapper
 
 ---
 

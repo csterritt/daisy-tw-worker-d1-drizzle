@@ -1,8 +1,14 @@
 # 04-page-navigation-buttons.spec.ts
 
-`e2e-tests/no-sign-up/04-page-navigation-buttons.spec.ts`
+**Source:** `e2e-tests/no-sign-up/04-page-navigation-buttons.spec.ts`
 
-Navigation buttons behave correctly in NO_SIGN_UP mode.
+## Purpose
+
+Verifies that navigation buttons on the sign-in page behave correctly in `NO_SIGN_UP` mode.
+
+## Test cases
+
+- `sign-in page has no sign-up button` — `go-to-sign-up-action` count is 0
 
 ---
 

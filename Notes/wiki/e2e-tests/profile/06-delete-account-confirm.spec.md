@@ -1,8 +1,15 @@
 # 06-delete-account-confirm.spec.ts
 
-`e2e-tests/profile/06-delete-account-confirm.spec.ts`
+**Source:** `e2e-tests/profile/06-delete-account-confirm.spec.ts`
 
-Confirming account deletion removes the account.
+## Purpose
+
+Verifies that confirming account deletion permanently removes the account.
+
+## Test cases
+
+- `can delete account and cannot sign in with deleted credentials` — confirms deletion, verifies redirect to sign-in with success message, then sign-in with old credentials fails
+- `delete confirmation page shows warning message` — verifies "Are you absolutely sure?" and "This action cannot be undone" text is present
 
 ---
 

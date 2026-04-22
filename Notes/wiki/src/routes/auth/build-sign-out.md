@@ -1,8 +1,25 @@
 # build-sign-out.tsx
 
-`src/routes/auth/build-sign-out.tsx`
+**Source:** `src/routes/auth/build-sign-out.tsx`
 
-Sign-out confirmation page.
+## Purpose
+
+Sign-out confirmation page (`/auth/sign-out`). Shows a success message after the user is signed out.
+
+## Export
+
+### `buildSignOut(app): void`
+
+Route: `GET /auth/sign-out`
+
+Renders:
+
+- `alert-success` with "You have been signed out successfully."
+- "Home" button (`/`) — `data-testid='go-home-action'`
+
+## Cross-references
+
+- [handle-sign-out.md](handle-sign-out.md) — POST handler that actually signs the user out
 
 ---
 

@@ -1,8 +1,22 @@
 # handle-reset-clock.ts
 
-`src/routes/auth/handle-reset-clock.ts`
+**Source:** `src/routes/auth/handle-reset-clock.ts`
 
-Resets manipulated clock (dev-only; PRODUCTION:REMOVE).
+## Purpose
+
+Dev-only test route that clears the clock manipulation `delta` cookie, restoring normal time behavior.
+
+## Export
+
+### `handleResetClock(app): void`
+
+Route: `GET /auth/reset-clock`
+
+Calls `clearCurrentDelta` and returns JSON: `{ ok: true }`
+
+## Cross-references
+
+- [lib/time-access.md](../../lib/time-access.md) — `clearCurrentDelta`
 
 ---
 

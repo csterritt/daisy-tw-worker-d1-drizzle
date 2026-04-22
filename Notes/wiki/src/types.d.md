@@ -1,8 +1,14 @@
 # types.d.ts
 
-`src/types.d.ts`
+**Source:** `src/types.d.ts`
 
-Additional ambient type declarations.
+## Purpose
+
+Ambient type declarations. In this file it provides a type declaration for global `test` variable (used by Playwright and other test environments to detect test mode).
+
+## Types
+
+- Declares `var test: unknown` globally
 
 ---
 

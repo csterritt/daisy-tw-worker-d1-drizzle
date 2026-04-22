@@ -1,8 +1,16 @@
 # 04-cant-visit-protected-page-signed-out.spec.ts
 
-`e2e-tests/sign-in/04-cant-visit-protected-page-signed-out.spec.ts`
+**Source:** `e2e-tests/sign-in/04-cant-visit-protected-page-signed-out.spec.ts`
 
-Unauthenticated users are redirected from /private.
+## Purpose
+
+Verifies that unauthenticated users are redirected to sign-in when accessing `/private`.
+
+## Test case
+
+- Directly navigates to `/private`
+- Verifies we are redirected to sign-in page
+- Verifies alert: `'You must sign in to visit that page'`
 
 ---
 

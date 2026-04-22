@@ -1,8 +1,27 @@
 # build-404.tsx
 
-`src/routes/build-404.tsx`
+**Source:** `src/routes/build-404.tsx`
 
-404 page builder (returns HTTP 200 with "Page Not Found" content per project convention).
+## Purpose
+
+Catch-all 404 handler registered via `app.notFound()` in `index.ts`.
+
+## Export
+
+### `build404(app): void`
+
+Renders a simple JSX page with `data-testid='not-found-page'`:
+
+- "Page Not Found" heading
+- Message: "The page you are looking for does not exist."
+- Home button (`/`) with `data-testid='go-home-action'`
+
+Returns HTTP 200 (SPA convention) with the rendered page inside the layout.
+
+## Cross-references
+
+- [index.md](../index.md) — registered as `app.notFound()`
+- [build-layout.md](build-layout.md) — layout wrapper
 
 ---
 

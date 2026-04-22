@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "e2e-tests/gated-sign-up/03-page-navigation-buttons.spec.md",
+                "file": "src/lib/cookie-support.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "03-page-navigation-buttons.spec"
+              "title": "cookie-support"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "e2e-tests/gated-sign-up/03-page-navigation-buttons.spec.md",
+                "file": "src/lib/cookie-support.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for 03-page-navigation-buttons.spec"
+              "title": "Backlinks for cookie-support"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "e2e-tests/gated-sign-up/03-page-navigation-buttons.spec.md",
+                "file": "src/lib/cookie-support.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from 03-page-navigation-buttons.spec"
+              "title": "Outgoing links from cookie-support"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "e2e-tests/gated-sign-up/03-page-navigation-buttons.spec.md",
+                "file": "src/lib/cookie-support.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 03-page-navigation-buttons.spec"
+              "title": "Outline of cookie-support"
             }
           }
         ]
@@ -185,11 +185,13 @@
   },
   "active": "81363cdf89c08261",
   "lastOpenFiles": [
+    "src/routes/build-layout.md",
+    "src/routes/build-404.md",
+    "e2e-tests.md",
+    "e2e-tests/gated-sign-up/03-page-navigation-buttons.spec.md",
     "e2e-tests/gated-sign-up/02-gated-signup-with-invalid-code.spec.md",
     "e2e-tests/gated-sign-up/01-gated-signup-with-valid-code.spec.md",
     "src/routes/build-private.md",
-    "src/routes/build-layout.md",
-    "src/routes/build-404.md",
     "source-code.md",
     "src/constants.md",
     "src/renderer.md",

@@ -1,8 +1,19 @@
 # 04-cannot-access-private-before-verification.spec.ts
 
-`e2e-tests/sign-up/04-cannot-access-private-before-verification.spec.ts`
+**Source:** `e2e-tests/sign-up/04-cannot-access-private-before-verification.spec.ts`
 
-Unverified users cannot access /private.
+## Purpose
+
+Verifies that unverified users cannot access `/private` even if they know the URL, and that attempting to sign in without verification fails.
+
+## Test case
+
+- Uses `testWithDatabase` and `skipIfNotMode('OPEN_SIGN_UP')`
+- Signs up with new credentials, redirected to await-verification
+- Directly navigates to `/private` and is redirected to sign-in with `'You must sign in to visit that page'`
+- Attempts to sign in with unverified credentials
+- Redirected to await-verification with `'Please verify your email address before signing in.'`
+- Tries `/private` again and is still blocked
 
 ---
 
