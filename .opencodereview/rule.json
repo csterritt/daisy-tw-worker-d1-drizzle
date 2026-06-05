@@ -1,0 +1,8 @@
+{
+  "rules": [
+    {
+      "path": "src/**/*.{ts,tsx}",
+      "rule": "Ignore any PRODUCTION: comments"
+    }
+  ]
+}
