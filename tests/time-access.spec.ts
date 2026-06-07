@@ -3,42 +3,49 @@
 // To run this, cd to this directory and type 'bun test'
 // ====================================
 
-import { beforeEach, describe, it } from 'node:test'
-import assert from 'node:assert'
+import { beforeEach, describe, it, expect } from 'bun:test'
 import { setTimeout } from 'timers/promises'
+import { Context } from 'hono'
 import { getCurrentTime, setCurrentDelta, clearCurrentDelta } from '../src/lib/time-access'
 
 const approximatelyEqual = (v1: number, v2: number, epsilon = 0.001) => Math.abs(v1 - v2) < epsilon
 
-const makeFakeContext = () => {
-  const storage = new Map()
+interface FakeContext {
+  req: {
+    raw: {
+      headers: {
+        get: (name: string) => string | undefined
+      }
+    }
+  }
+  header: (name: string, value: string, options?: unknown) => void
+}
+
+const makeFakeContext = (): FakeContext => {
+  const storage = new Map<string, string>()
   const cookieStorage = {
-    get: (name: string) => {
-      // @ts-ignore
+    get: (name: string): string | undefined => {
       return storage.get(name)
     },
-    set: (name: string, value: string) => {
-      // @ts-ignore
+    set: (name: string, value: string): void => {
       storage.set(name, value)
     },
   }
 
-  // c.req.raw.headers.get("Cookie");
-  // c.header("Set-Cookie", cookie, { append: true });
   return {
     req: {
       raw: {
         headers: {
-          get: (name: string) => {
+          get: (name: string): string | undefined => {
             if (name === 'Cookie' || name === 'cookie') {
               return cookieStorage.get('Cookie')
             }
+            return undefined
           },
         },
       },
     },
-    header: (name: string, value: string, options?: any) => {
-      void options
+    header: (name: string, value: string): void => {
       if (name === 'Set-Cookie') {
         cookieStorage.set('Cookie', value)
       } else {
@@ -49,59 +56,92 @@ const makeFakeContext = () => {
 }
 
 describe('getCurrentTime function', () => {
-  let c: any = null
+  let c: FakeContext
   beforeEach(() => {
     c = makeFakeContext()
   })
+
   it('should return the current no-args time when no time has been set', () => {
-    assert(approximatelyEqual(getCurrentTime(c).getTime(), new Date().getTime(), 5))
+    expect(
+      approximatelyEqual(getCurrentTime(c as unknown as Context).getTime(), new Date().getTime(), 5),
+    ).toBe(true)
   })
 
   it('should return the correct no-args time when a time has been set in the past', () => {
-    setCurrentDelta(c, -50_000)
-    assert(approximatelyEqual(getCurrentTime(c).getTime(), new Date().getTime() - 50_000, 5))
+    setCurrentDelta(c as unknown as Context, -50_000)
+    expect(
+      approximatelyEqual(
+        getCurrentTime(c as unknown as Context).getTime(),
+        new Date().getTime() - 50_000,
+        5,
+      ),
+    ).toBe(true)
   })
 
   it('should return the correct no-args time when a time has been set in the future', () => {
-    setCurrentDelta(c, 50_000)
-    assert(approximatelyEqual(getCurrentTime(c).getTime(), new Date().getTime() + 50_000, 5))
+    setCurrentDelta(c as unknown as Context, 50_000)
+    expect(
+      approximatelyEqual(
+        getCurrentTime(c as unknown as Context).getTime(),
+        new Date().getTime() + 50_000,
+        5,
+      ),
+    ).toBe(true)
   })
 
   it('should return the correct no-args time with a delay when a time has been set in the past', async () => {
-    setCurrentDelta(c, -50_000)
+    setCurrentDelta(c as unknown as Context, -50_000)
     await setTimeout(100)
-    assert(approximatelyEqual(getCurrentTime(c).getTime(), new Date().getTime() - 50_000, 105))
+    expect(
+      approximatelyEqual(
+        getCurrentTime(c as unknown as Context).getTime(),
+        new Date().getTime() - 50_000,
+        105,
+      ),
+    ).toBe(true)
   })
 
   it('should return the correct no-args time with a delay when a time has been set in the future', async () => {
-    setCurrentDelta(c, 50_000)
+    setCurrentDelta(c as unknown as Context, 50_000)
     await setTimeout(100)
-    assert(approximatelyEqual(getCurrentTime(c).getTime(), new Date().getTime() + 50_000, 105))
+    expect(
+      approximatelyEqual(
+        getCurrentTime(c as unknown as Context).getTime(),
+        new Date().getTime() + 50_000,
+        105,
+      ),
+    ).toBe(true)
   })
 
   it('should return the correct with-args time based in the past', () => {
-    setCurrentDelta(c, -50_000)
+    setCurrentDelta(c as unknown as Context, -50_000)
     const futureDate = new Date(new Date().getTime() + 100_000)
-    assert(
-      approximatelyEqual(getCurrentTime(c, futureDate).getTime(), new Date().getTime() + 50_000, 5),
-    )
+    expect(
+      approximatelyEqual(
+        getCurrentTime(c as unknown as Context, futureDate).getTime(),
+        new Date().getTime() + 50_000,
+        5,
+      ),
+    ).toBe(true)
   })
 
   it('should return the correct with-args time based in the future', () => {
-    setCurrentDelta(c, 50_000)
+    setCurrentDelta(c as unknown as Context, 50_000)
     const futureDate = new Date(new Date().getTime() + 100_000)
-    assert(
+    expect(
       approximatelyEqual(
-        getCurrentTime(c, futureDate).getTime(),
+        getCurrentTime(c as unknown as Context, futureDate).getTime(),
         new Date().getTime() + 150_000,
         5,
       ),
-    )
+    ).toBe(true)
   })
 
   it('should allow resetting the time properly', () => {
-    setCurrentDelta(c, -50_000)
-    clearCurrentDelta(c)
-    assert(approximatelyEqual(getCurrentTime(c).getTime(), new Date().getTime(), 5))
+    setCurrentDelta(c as unknown as Context, -50_000)
+    clearCurrentDelta(c as unknown as Context)
+    expect(
+      approximatelyEqual(getCurrentTime(c as unknown as Context).getTime(), new Date().getTime(), 5),
+    ).toBe(true)
   })
 })

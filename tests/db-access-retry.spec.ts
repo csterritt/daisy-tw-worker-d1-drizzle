@@ -3,10 +3,23 @@
 // To run this, cd to this directory and type 'bun test'
 // ====================================
 
-import { describe, it } from 'node:test'
-import assert from 'node:assert'
+import { describe, it, expect } from 'bun:test'
 import retry from 'async-retry'
 import Result from 'true-myth/result'
+
+const unwrap = <T, E>(result: Result<T, E>): T => {
+  if (!result.isOk) {
+    throw new Error(`Expected Ok, got Err: ${result.error}`)
+  }
+  return result.value
+}
+
+const unwrapErr = <T, E>(result: Result<T, E>): E => {
+  if (!result.isErr) {
+    throw new Error(`Expected Err, got Ok: ${result.value}`)
+  }
+  return result.error
+}
 
 const STANDARD_RETRY_OPTIONS = {
   minTimeout: 1,
@@ -41,9 +54,8 @@ describe('withRetry function', () => {
 
     const result = await withRetry('test', operation)
 
-    assert.strictEqual(result.isOk, true)
-    assert.strictEqual(result.isOk && result.value, 'success')
-    assert.strictEqual(callCount, 1)
+    expect(unwrap(result)).toBe('success')
+    expect(callCount).toBe(1)
   })
 
   it('should retry on Result.err and eventually succeed', async () => {
@@ -58,9 +70,8 @@ describe('withRetry function', () => {
 
     const result = await withRetry('test', operation)
 
-    assert.strictEqual(result.isOk, true)
-    assert.strictEqual(result.isOk && result.value, 'success after retries')
-    assert.strictEqual(callCount, 3)
+    expect(unwrap(result)).toBe('success after retries')
+    expect(callCount).toBe(3)
   })
 
   it('should return Result.err after exhausting all retries', async () => {
@@ -72,9 +83,8 @@ describe('withRetry function', () => {
 
     const result = await withRetry('test', operation)
 
-    assert.strictEqual(result.isErr, true)
-    assert.strictEqual(result.isErr && result.error.message, 'persistent failure')
-    assert.strictEqual(callCount, 4) // 1 initial + 3 retries
+    expect(unwrapErr(result).message).toBe('persistent failure')
+    expect(callCount).toBe(4) // 1 initial + 3 retries
   })
 
   it('should retry on thrown exceptions', async () => {
@@ -89,9 +99,8 @@ describe('withRetry function', () => {
 
     const result = await withRetry('test', operation)
 
-    assert.strictEqual(result.isOk, true)
-    assert.strictEqual(result.isOk && result.value, 'recovered')
-    assert.strictEqual(callCount, 2)
+    expect(unwrap(result)).toBe('recovered')
+    expect(callCount).toBe(2)
   })
 
   it('should preserve the original error after retries exhaust', async () => {
@@ -102,7 +111,6 @@ describe('withRetry function', () => {
 
     const result = await withRetry('test', operation)
 
-    assert.strictEqual(result.isErr, true)
-    assert.strictEqual(result.isErr && result.error, originalError)
+    expect(unwrapErr(result)).toBe(originalError)
   })
 })
