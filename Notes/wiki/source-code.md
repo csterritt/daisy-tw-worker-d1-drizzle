@@ -22,20 +22,21 @@ Catalog of all source files under `src/` (61 files total), organized by category
 ## Database
 
 - [src/db/client.ts](./src/db/client.md) — Drizzle ORM client factory for D1 database.
-- [src/db/schema.ts](./src/db/schema.md) — Drizzle schema definitions: user, session, account, verification, singleUseCode, interestedEmail. Includes inferred TypeScript types for all tables.
+- [src/db/schema.ts](./src/db/schema.md) — Drizzle schema definitions: user, session, account, verification, singleUseCode, interestedEmail. Includes inferred TypeScript types for all tables. The `account` table has dedicated rate-limit columns `lastResetEmailAt` and `lastVerificationEmailAt` (migration `0002`).
 
 ## Libraries (`src/lib/`)
 
 - [src/lib/auth.ts](./src/lib/auth.md) — Better Auth instance configuration: Drizzle adapter, email/password setup, email verification callbacks, session config, trusted origins, and secret binding.
 - [src/lib/cookie-support.ts](./src/lib/cookie-support.md) — Cookie parsing, serialization, and deletion utilities.
-- [src/lib/db-access.ts](./src/lib/db-access.md) — Database access helpers with retry logic for D1 queries.
-- [src/lib/email-service.ts](./src/lib/email-service.md) — Email template builders and sending logic for confirmation and password-reset emails.
+- [src/lib/db-access.ts](./src/lib/db-access.md) — Database access helpers with retry logic for D1 queries. Includes `updateResetEmailTimestamp`/`updateVerificationEmailTimestamp` (dedicated rate-limit clocks) and `releaseSingleUseCode`; `getUserWithAccountByEmail` scopes its account join to `providerId='credential'`.
+- [src/lib/email-service.ts](./src/lib/email-service.md) — Email template builders and sending logic for confirmation and password-reset emails. Production transport now throws on non-2xx responses so delivery failures are not silently swallowed.
+- [src/lib/email-utils.ts](./src/lib/email-utils.md) — `normalizeEmail` helper (trim + lowercase) so app-level DB lookups match Better Auth's internally normalized addresses.
 - [src/lib/generate-code.ts](./src/lib/generate-code.md) — Single-use sign-up code generation utility.
 - [src/lib/po-notify.ts](./src/lib/po-notify.md) — Pushover notification integration (optional).
 - [src/lib/redirects.tsx](./src/lib/redirects.md) — JSX-based redirect response builders.
 - [src/lib/send-email.ts](./src/lib/send-email.md) — Low-level email sending via Nodemailer or fetch-based transport.
 - [src/lib/setup-no-cache-headers.ts](./src/lib/setup-no-cache-headers.md) — Middleware/util to set cache-busting headers.
-- [src/lib/sign-up-utils.ts](./src/lib/sign-up-utils.md) — Shared sign-up validation and processing utilities.
+- [src/lib/sign-up-utils.ts](./src/lib/sign-up-utils.md) — Shared sign-up validation and processing utilities. Releases a claimed single-use code on any account-creation failure and reports duplicate display-name violations distinctly from duplicate-email (`isDuplicateNameError`).
 - [src/lib/test-routes.ts](./src/lib/test-routes.md) — Predicate to determine if dev-only test routes should be enabled.
 - [src/lib/time-access.ts](./src/lib/time-access.md) — Time-related utilities (clock manipulation for testing).
 - [src/lib/url-validation.ts](./src/lib/url-validation.md) — URL validation helpers for redirects and origins.

@@ -30,3 +30,16 @@ Replaced all stub wiki entries for E2E spec, support, and unit test files with d
 - **E2E spec files (47):** Documented all Playwright test files across `general/`, `gated-sign-up/`, `interest-sign-up/`, `no-sign-up/`, `profile/`, `reset-password/`, `sign-in/`, and `sign-up/` with purpose, test cases, and helper details.
 - **Unit test files (5):** Documented `db-access-retry.spec`, `send-email.spec`, `sign-up-utils.spec`, `time-access.spec`, and `url-validation.spec` with purpose, key logic tested, and test cases.
 - All entries follow the established wiki style with `## Purpose` and `## Test cases` / `## Exports` sections, plus cross-references to related wiki pages.
+
+## [2026-06-05] ingest | Code-review task decisions implemented
+
+Implemented the `Notes/tasks/` Decision items and recorded the resulting source/test changes.
+
+- **New source file:** `src/lib/email-utils.ts` (`normalizeEmail`); added page and linked it in `source-code.md`.
+- **Schema:** `account` gained `lastResetEmailAt` / `lastVerificationEmailAt` (Drizzle migration `0002`) — dedicated rate-limit clocks (Task 7).
+- **db-access:** added `updateResetEmailTimestamp`, `updateVerificationEmailTimestamp`, `releaseSingleUseCode`; `getUserWithAccountByEmail` now scopes its join to `providerId='credential'` (Tasks 1, 7, 11).
+- **email-service:** production transport throws on non-2xx responses (Task 2).
+- **sign-up-utils + auth handlers:** normalize email before DB lookups (Task 3); release claimed single-use code on failure (Task 1); distinguish duplicate display-name from duplicate-email (Task 4).
+- **Type safety:** removed/narrowed `@ts-ignore` and `as unknown` casts in `index.ts`, `time-access.ts`, `email-service.ts`, and the auth route files (Task 10).
+- **New unit tests:** `tests/email-utils.spec.ts`, `tests/sign-up-name-classification.spec.ts`; updated `unit-tests.md` (5 → 7 spec files).
+- Tasks 5, 6, 9 were intentionally left as-is per their Decision sections (IGNORE).
