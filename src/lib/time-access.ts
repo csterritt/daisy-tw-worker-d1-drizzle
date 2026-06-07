@@ -20,7 +20,8 @@ export const getCurrentTime = (c: Context, ...args: (string | number | Date)[]):
       return new Date()
     }
 
-    // @ts-ignore
+    // @ts-expect-error - Date has no overload for a spread union array, but the
+    // caller-provided args are valid Date constructor arguments at runtime.
     return new Date(...args)
   }
 
@@ -39,7 +40,8 @@ export const getCurrentTime = (c: Context, ...args: (string | number | Date)[]):
     return new Date(new Date().getTime() + delta)
   }
 
-  // @ts-ignore
+  // @ts-expect-error - Date has no overload for a spread union array, but the
+  // caller-provided args are valid Date constructor arguments at runtime.
   return new Date(new Date(...args).getTime() + delta)
 }
 

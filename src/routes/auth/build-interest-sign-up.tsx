@@ -96,9 +96,7 @@ const renderInterestSignUp = (emailEntered: string) => {
 export const buildInterestSignUp = (app: Hono<{ Bindings: Bindings }>): void => {
   app.get(PATHS.AUTH.INTEREST_SIGN_UP, secureHeaders(STANDARD_SECURE_HEADERS), (c) => {
     // Check if user is already signed in using better-auth session
-    const user = (c as unknown as { get: (key: string) => unknown }).get('user') as {
-      id: string
-    } | null
+    const user = c.get('user')
     if (user) {
       console.log('Already signed in')
       return redirectWithMessage(c, PATHS.PRIVATE, MESSAGES.ALREADY_SIGNED_IN)

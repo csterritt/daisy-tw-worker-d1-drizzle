@@ -10,7 +10,13 @@ import { Context } from 'hono'
 
 import { redirectWithError, redirectWithMessage } from './redirects'
 import { addCookie } from './cookie-support'
-import { getUserIdByEmail, updateAccountTimestamp, claimSingleUseCode } from './db-access'
+import {
+  getUserIdByEmail,
+  updateVerificationEmailTimestamp,
+  claimSingleUseCode,
+  releaseSingleUseCode,
+} from './db-access'
+import { normalizeEmail } from './email-utils'
 import { createAuth } from './auth'
 import { createDbClient } from '../db/client'
 import { PATHS, COOKIES, MESSAGES, LOG_MESSAGES } from '../constants'
@@ -41,6 +47,13 @@ const DUPLICATE_EMAIL_PATTERNS = [
  * Patterns that indicate a database constraint error (likely duplicate)
  */
 const CONSTRAINT_ERROR_PATTERNS = ['constraint', 'sqlite_constraint']
+
+/**
+ * Patterns that indicate the unique violation is on the user's name column,
+ * not the email column. SQLite/D1 report the offending column/index in the
+ * message (e.g. "UNIQUE constraint failed: user.name").
+ */
+const DUPLICATE_NAME_PATTERNS = ['user.name', 'user_name_unique']
 
 interface SignUpErrorResponse {
   error?: { message?: string }
@@ -132,6 +145,17 @@ export const isConstraintError = (errorMessage: string): boolean => {
 }
 
 /**
+ * Check if a constraint error is specifically a duplicate display-name (user.name)
+ * violation rather than a duplicate email. Used to show an accurate message.
+ * @param errorMessage - Error message to check
+ * @returns True if the error indicates a duplicate name
+ */
+export const isDuplicateNameError = (errorMessage: string): boolean => {
+  const lowerMessage = errorMessage.toLowerCase()
+  return DUPLICATE_NAME_PATTERNS.some((pattern) => lowerMessage.includes(pattern))
+}
+
+/**
  * Extract error message from an unknown error
  * @param error - Unknown error value
  * @returns String error message
@@ -165,6 +189,10 @@ export const handleSignUpResponseError = (
   const errorMessage = response.error?.message || 'Registration failed'
   console.error('Sign-up response error:', errorMessage)
 
+  if (isDuplicateNameError(errorMessage)) {
+    return redirectWithError(c, fallbackPath, MESSAGES.DISPLAY_NAME_TAKEN)
+  }
+
   if (isDuplicateEmailError(errorMessage)) {
     addCookie(c, COOKIES.EMAIL_ENTERED, email)
     return redirectWithMessage(c, PATHS.AUTH.AWAIT_VERIFICATION, MESSAGES.ACCOUNT_ALREADY_EXISTS)
@@ -191,6 +219,10 @@ export const handleSignUpApiError = (
 
   const errorMessage = extractErrorMessage(error)
 
+  if (isDuplicateNameError(errorMessage)) {
+    return redirectWithError(c, fallbackPath, MESSAGES.DISPLAY_NAME_TAKEN)
+  }
+
   if (isDuplicateEmailError(errorMessage) || isConstraintError(errorMessage)) {
     addCookie(c, COOKIES.EMAIL_ENTERED, email)
     return redirectWithMessage(c, PATHS.AUTH.AWAIT_VERIFICATION, MESSAGES.ACCOUNT_ALREADY_EXISTS)
@@ -200,7 +232,8 @@ export const handleSignUpApiError = (
 }
 
 /**
- * Update account timestamp after successful sign-up
+ * Record the verification-email rate-limit timestamp after a successful sign-up.
+ * Sign-up sends a verification email, so this starts the resend cooldown.
  * @param db - Database client
  * @param email - User email to find
  */
@@ -212,7 +245,7 @@ export const updateAccountTimestampAfterSignUp = async (
     const userIdResult = await getUserIdByEmail(db, email)
 
     if (userIdResult.isOk && userIdResult.value.length > 0) {
-      const updateResult = await updateAccountTimestamp(db, userIdResult.value[0].id)
+      const updateResult = await updateVerificationEmailTimestamp(db, userIdResult.value[0].id)
 
       if (updateResult.isErr) {
         console.error(LOG_MESSAGES.DB_UPDATE_ACCOUNT_TS, updateResult.error)
@@ -245,7 +278,8 @@ export const processGatedSignUp = async (
   c: Context<{ Bindings: Bindings }>,
   data: GatedSignUpData,
 ): Promise<Response> => {
-  const { code, name, email, password } = data
+  const { code, name, password } = data
+  const email = normalizeEmail(data.email)
   const trimmedCode = code.trim()
   const dbClient = createDbClient(c.env.PROJECT_DB)
 
@@ -265,6 +299,15 @@ export const processGatedSignUp = async (
     )
   }
 
+  // The code is now claimed. If account creation fails for any reason, release
+  // it so a legitimate user doesn't permanently lose their one-time invite.
+  const releaseClaimedCode = async (): Promise<void> => {
+    const releaseResult = await releaseSingleUseCode(dbClient, trimmedCode, email)
+    if (releaseResult.isErr) {
+      console.error('Failed to release sign-up code after failed sign-up:', releaseResult.error)
+    }
+  }
+
   // Code claimed successfully - proceed with account creation
   const auth = createAuth(c.env)
 
@@ -279,25 +322,30 @@ export const processGatedSignUp = async (
     })
 
     if (!signUpResponse) {
+      await releaseClaimedCode()
       return redirectWithError(c, PATHS.AUTH.SIGN_UP, 'Failed to create account. Please try again.')
     }
 
     const errorResponse = handleSignUpResponseError(c, signUpResponse, email, PATHS.AUTH.SIGN_UP)
 
     if (errorResponse) {
+      await releaseClaimedCode()
       return errorResponse
     }
 
     if (isSyntheticDuplicateResponse(signUpResponse)) {
+      await releaseClaimedCode()
       addCookie(c, COOKIES.EMAIL_ENTERED, email)
       return redirectWithMessage(c, PATHS.AUTH.AWAIT_VERIFICATION, MESSAGES.ACCOUNT_ALREADY_EXISTS)
     }
 
     const responseStatus = getResponseStatus(signUpResponse)
     if (responseStatus !== null && responseStatus !== 200) {
+      await releaseClaimedCode()
       return redirectWithError(c, PATHS.AUTH.SIGN_UP, MESSAGES.GENERIC_ERROR_TRY_AGAIN)
     }
   } catch (apiError: unknown) {
+    await releaseClaimedCode()
     return handleSignUpApiError(c, apiError, email, PATHS.AUTH.SIGN_UP)
   }
 
