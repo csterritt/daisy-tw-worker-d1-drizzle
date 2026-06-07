@@ -308,6 +308,11 @@ export const processGatedSignUp = async (
     }
   }
 
+  // Check if user already exists before attempting sign-up
+  const existingUserResult = await getUserIdByEmail(dbClient, email)
+  const userAlreadyExists =
+    existingUserResult.isOk && existingUserResult.value.length > 0
+
   // Code claimed successfully - proceed with account creation
   const auth = createAuth(c.env)
 
@@ -334,9 +339,11 @@ export const processGatedSignUp = async (
     }
 
     if (isSyntheticDuplicateResponse(signUpResponse)) {
-      await releaseClaimedCode()
       addCookie(c, COOKIES.EMAIL_ENTERED, email)
-      return redirectWithMessage(c, PATHS.AUTH.AWAIT_VERIFICATION, MESSAGES.ACCOUNT_ALREADY_EXISTS)
+      if (userAlreadyExists) {
+        return redirectWithMessage(c, PATHS.AUTH.AWAIT_VERIFICATION, MESSAGES.ACCOUNT_ALREADY_EXISTS)
+      }
+      return redirectToAwaitVerification(c, email)
     }
 
     const responseStatus = getResponseStatus(signUpResponse)

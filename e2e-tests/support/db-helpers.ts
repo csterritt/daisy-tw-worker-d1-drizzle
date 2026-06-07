@@ -59,6 +59,36 @@ export const clearSessions = async (): Promise<void> => {
 }
 
 /**
+ * Set lastVerificationEmailAt to now for the given email, starting the rate-limit cooldown.
+ * Call this right before clicking resend in rate-limit tests so the window is always fresh.
+ * @param email - The user email to update
+ */
+export const setVerificationTimestamp = async (email: string): Promise<void> => {
+  try {
+    const response = await fetch(
+      `http://localhost:3000/test/database/set-verification-timestamp/${encodeURIComponent(email)}`,
+      { method: 'POST' },
+    )
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+    }
+
+    const result = (await response.json()) as {
+      success: boolean
+      error?: string
+    }
+
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to set verification timestamp')
+    }
+  } catch (error) {
+    console.error('Failed to set verification timestamp:', error)
+    throw error
+  }
+}
+
+/**
  * Check if a single-use code exists in the database
  * @param code - The code to check
  * @returns Promise<boolean> - true if code exists, false otherwise
