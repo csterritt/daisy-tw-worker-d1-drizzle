@@ -341,6 +341,7 @@ export const processGatedSignUp = async (
     if (isSyntheticDuplicateResponse(signUpResponse)) {
       addCookie(c, COOKIES.EMAIL_ENTERED, email)
       if (userAlreadyExists) {
+        await releaseClaimedCode()
         return redirectWithMessage(c, PATHS.AUTH.AWAIT_VERIFICATION, MESSAGES.ACCOUNT_ALREADY_EXISTS)
       }
       return redirectToAwaitVerification(c, email)

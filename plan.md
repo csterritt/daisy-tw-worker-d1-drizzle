@@ -1,35 +1,20 @@
-# Fix: Sign-up handlers and pages are duplicated
+# Fix: Invite codes burned on duplicate-email gated sign-up
 
 ## Problem
 
-The gated sign-up handler logic is nearly identical between:
-
-- `handle-gated-sign-up.ts` (lines 37-133)
-- `handle-gated-interest-sign-up.ts` (lines 52-148)
-
-Similarly, the gated sign-up form JSX is duplicated between:
-
-- `build-gated-sign-up.tsx` (lines 29-139)
-- `build-gated-interest-sign-up.tsx` (lines 29-189)
-
-This raises divergence risk—bug fixes or changes must be applied in multiple places.
+In `processGatedSignUp` (`src/lib/sign-up-utils.ts:341-345`), when Better Auth returns a synthetic duplicate-account response and `userAlreadyExists` is true, the handler redirects to the await-verification page without calling `releaseClaimedCode()`. This permanently consumes the invite code even though no new account was created, allowing an attacker to exhaust invitation codes by submitting with known existing emails.
 
 ## Assumptions
 
-- The handler logic for gated sign-up (code validation → account creation) is identical and can be extracted.
-- The form components can be extracted into reusable JSX components.
-- The combined page (`build-gated-interest-sign-up.tsx`) composes both forms, so shared components work well.
+- No database schema changes are needed; the fix is purely in application logic.
+- The existing `releaseClaimedCode()` helper already handles the DB release correctly.
 
 ## Plan
 
-1. **Extract shared handler logic** — Create `processGatedSignUp(c, data)` in `sign-up-utils.ts` that handles code claiming, auth API call, error handling, and redirect. Both handlers call this.
-2. **Extract shared form component** — Create `GatedSignUpForm` component in a new `components/` file that both pages import.
-3. **Update handlers** — Refactor `handle-gated-sign-up.ts` and `handle-gated-interest-sign-up.ts` to use the shared helper.
-4. **Update pages** — Refactor `build-gated-sign-up.tsx` and `build-gated-interest-sign-up.tsx` to use the shared form component.
-5. **Verify** — Run `tsc --noEmit` and existing tests to confirm no regressions.
+1. **Update failing test (Red)** — Change `e2e-tests/gated-sign-up/05-code-consumption-semantics.spec.ts` test "code IS consumed when sign-up fails due to duplicate email" to expect the code is NOT consumed (`existsAfter toBe true`), and update the test name/comment accordingly.
+2. **Fix the bug (Green)** — Add `await releaseClaimedCode()` before the redirect in the `userAlreadyExists` branch (`src/lib/sign-up-utils.ts:343-344`).
+3. **Verify** — Run all tests to confirm fix is correct and no regressions.
 
 ## Pitfalls
 
-- **Over-abstraction** — Don't abstract too early; keep the shared code focused on truly identical logic.
-- **Props explosion** — If the shared component needs many props, consider whether the abstraction is worth it.
-- **Test coverage** — Ensure E2E tests still pass after refactoring; the behavior should be identical.
+- **Both branches of `isSyntheticDuplicateResponse`** — The `userAlreadyExists` branch needs the release; the non-`userAlreadyExists` branch (genuine duplicate from a race) should also be considered, but per the task only the `userAlreadyExists` path is the documented vulnerability.
