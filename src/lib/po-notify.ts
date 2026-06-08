@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
+/**
+ * @file Intentionally retained utility (not currently wired into any route).
+ * Pushover notification helper kept for future operational alerting. Do not
+ * delete without confirming it is no longer needed.
+ */
+
 import { Context } from 'hono'
 
 import { API_URLS } from '../constants'

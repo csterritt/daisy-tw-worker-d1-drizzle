@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test'
 import {} from '../support/finders'
 import { verifyOnSignUpPage, verifyOnAwaitVerificationPage } from '../support/page-verifiers'
 import { testWithDatabase } from '../support/test-helpers'
+import { setVerificationTimestamp } from '../support/db-helpers'
 import { skipIfNotMode } from '../support/mode-helpers'
 import { navigateToSignUp } from '../support/navigation-helpers'
 import { submitSignUpForm } from '../support/form-helpers'
@@ -31,6 +32,10 @@ test(
     // Verify the resend button is available
     const resendButton = page.getByTestId('resend-email-action')
     await expect(resendButton).toBeVisible()
+
+    // Refresh the rate-limit timestamp to NOW so the window is deterministically active
+    // regardless of how long the sign-up form took to fill
+    await setVerificationTimestamp(newEmail)
 
     // Click resend email button for the first time (should now be rate limited since initial email was just sent)
     await resendButton.click()

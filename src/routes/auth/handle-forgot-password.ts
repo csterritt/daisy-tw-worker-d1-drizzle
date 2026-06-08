@@ -26,9 +26,10 @@ import { Bindings, DrizzleClient } from '../../local-types'
 import { createDbClient } from '../../db/client'
 import {
   getUserWithAccountByEmail,
-  updateAccountTimestamp,
+  updateResetEmailTimestamp,
   UserWithAccountData,
 } from '../../lib/db-access'
+import { normalizeEmail } from '../../lib/email-utils'
 import { validateRequest, ForgotPasswordFormSchema } from '../../lib/validators'
 
 interface RateLimitResult {
@@ -98,7 +99,7 @@ const sendPasswordResetEmail = async (
  * @param userId - User ID to update
  */
 const updateEmailTimestamp = async (db: DrizzleClient, userId: string): Promise<void> => {
-  const updateResult = await updateAccountTimestamp(db, userId)
+  const updateResult = await updateResetEmailTimestamp(db, userId)
 
   if (updateResult.isErr) {
     console.error(LOG_MESSAGES.DB_UPDATE_ACCOUNT_TS, updateResult.error)
@@ -130,7 +131,7 @@ const processPasswordReset = async (
   userData: UserWithAccountData,
   email: string,
 ): Promise<Response> => {
-  const rateLimitResult = checkRateLimit(userData.accountUpdatedAt)
+  const rateLimitResult = checkRateLimit(userData.lastResetEmailAt)
 
   if (!rateLimitResult.allowed) {
     return redirectWithError(
@@ -176,7 +177,7 @@ export const handleForgotPassword = (app: Hono<{ Bindings: Bindings }>): void =>
         )
       }
 
-      const email = data!.email as string
+      const email = normalizeEmail(data!.email as string)
       const db = createDbClient(c.env.PROJECT_DB)
 
       const userWithAccountResult = await getUserWithAccountByEmail(db, email)

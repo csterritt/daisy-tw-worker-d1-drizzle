@@ -21,7 +21,8 @@ import {
 import { createAuth } from '../../lib/auth'
 import type { Bindings } from '../../local-types'
 import { createDbClient } from '../../db/client'
-import { getUserWithAccountByEmail, updateAccountTimestamp } from '../../lib/db-access'
+import { getUserWithAccountByEmail, updateVerificationEmailTimestamp } from '../../lib/db-access'
+import { normalizeEmail } from '../../lib/email-utils'
 import { addCookie } from '../../lib/cookie-support'
 import { validateRequest, ResendEmailFormSchema } from '../../lib/validators'
 
@@ -43,7 +44,7 @@ export const handleResendEmail = (app: Hono<{ Bindings: Bindings }>): void => {
         )
       }
 
-      const email = data!.email as string
+      const email = normalizeEmail(data!.email as string)
 
       try {
         // Create database client and auth instance
@@ -88,7 +89,9 @@ export const handleResendEmail = (app: Hono<{ Bindings: Bindings }>): void => {
 
         // Check rate limiting using account.updatedAt
         const now = Date.now()
-        const lastEmailTime = userData.accountUpdatedAt ? userData.accountUpdatedAt.getTime() : 0
+        const lastEmailTime = userData.lastVerificationEmailAt
+          ? userData.lastVerificationEmailAt.getTime()
+          : 0
         const timeSinceLastEmail = now - lastEmailTime
         const waitTimeMs = DURATIONS.EMAIL_RESEND_TIME_IN_MILLISECONDS
 
@@ -111,8 +114,8 @@ export const handleResendEmail = (app: Hono<{ Bindings: Bindings }>): void => {
           },
         })
 
-        // Update the account's updatedAt field to track this email send
-        const updateResult = await updateAccountTimestamp(db, userData.userId)
+        // Record the verification-email send time for rate limiting
+        const updateResult = await updateVerificationEmailTimestamp(db, userData.userId)
 
         if (updateResult.isErr) {
           console.error(LOG_MESSAGES.DB_UPDATE_ACCOUNT_TS, updateResult.error)

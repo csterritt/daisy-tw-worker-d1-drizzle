@@ -59,6 +59,10 @@ export const account = sqliteTable('account', {
   password: text('password'), // For email/password auth
   createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
   updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+  // Dedicated rate-limit clocks, decoupled from updatedAt (which better-auth
+  // also writes) and from each other.
+  lastResetEmailAt: integer('lastResetEmailAt', { mode: 'timestamp' }),
+  lastVerificationEmailAt: integer('lastVerificationEmailAt', { mode: 'timestamp' }),
 })
 
 /**

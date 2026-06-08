@@ -19,6 +19,7 @@ import {
   redirectToAwaitVerification,
   isSyntheticDuplicateResponse,
 } from '../../lib/sign-up-utils'
+import { normalizeEmail } from '../../lib/email-utils'
 import { addCookie } from '../../lib/cookie-support'
 
 interface SignUpData {
@@ -41,7 +42,8 @@ export const handleSignUp = (app: Hono<{ Bindings: Bindings }>): void => {
         return redirectWithError(c, PATHS.AUTH.SIGN_IN, err || MESSAGES.INVALID_INPUT)
       }
 
-      const { name, email, password } = data as SignUpData
+      const { name, password } = data as SignUpData
+      const email = normalizeEmail((data as SignUpData).email)
       const auth = createAuth(c.env)
 
       try {

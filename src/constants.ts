@@ -138,6 +138,7 @@ export const MESSAGES = {
   ACCOUNT_ALREADY_EXISTS:
     'An account with this email already exists. Please check your email for a verification link or sign in if you have already verified your account.',
   NEW_VERIFICATION_EMAIL: 'A new verification email has been sent. Please check your inbox.',
+  DISPLAY_NAME_TAKEN: 'That display name is already in use. Please choose a different name.',
 } as const
 
 export const MESSAGE_BUILDERS = {

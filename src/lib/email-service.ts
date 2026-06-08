@@ -43,7 +43,7 @@ const getEmailConfig = (env: Bindings): EmailConfig => {
     env.NODE_ENV === 'development' || // PRODUCTION:REMOVE
     env.PLAYWRIGHT === '1' || // Playwright sets this PROCESS:REMOVE
     process.argv.includes('playwright') || // Running via playwright PROCESS:REMOVE
-    typeof (globalThis as any).test !== 'undefined' // Test environment PROCESS:REMOVE
+    typeof (globalThis as { test?: unknown }).test !== 'undefined' // Test environment PROCESS:REMOVE
 
   return {
     isTestMode,
@@ -104,7 +104,7 @@ const createTransporter = (env: Bindings): EmailTransporter => {
         throw new Error('EMAIL_SEND_URL is not configured')
       }
 
-      return fetch(env.EMAIL_SEND_URL, {
+      const response = await fetch(env.EMAIL_SEND_URL, {
         body: JSON.stringify({
           email_to: mailOptions.to,
           subject: mailOptions.subject,
@@ -118,6 +118,17 @@ const createTransporter = (env: Bindings): EmailTransporter => {
           'content-type': 'application/json;charset=UTF-8',
         },
       })
+
+      // A non-2xx response means the email was not accepted for delivery.
+      // Surface it as an error so callers don't treat a failed send as success.
+      if (!response.ok) {
+        const responseBody = await response.text().catch(() => '')
+        throw new Error(
+          `Email send failed with status ${response.status} ${response.statusText}: ${responseBody}`,
+        )
+      }
+
+      return response
     },
   }
 }

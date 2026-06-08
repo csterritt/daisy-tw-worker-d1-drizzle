@@ -69,9 +69,12 @@ const validateEnvironmentVariables = (): boolean => {
 
   const missingVars: string[] = []
 
+  // `env` from cloudflare:workers is not indexable by an arbitrary string key;
+  // view it as a string record to read the required vars by name.
+  const envRecord = env as unknown as Record<string, string | undefined>
   for (const varName of requiredVars) {
-    // @ts-ignore
-    if (!env[varName] || env[varName]?.trim() === '') {
+    const value = envRecord[varName]
+    if (!value || value.trim() === '') {
       missingVars.push(varName)
     }
   }
@@ -97,10 +100,13 @@ if (!validateEnvironmentVariables()) {
 
 const app = new Hono<{ Bindings: Bindings }>()
 
+// `env` from cloudflare:workers does not structurally match our Bindings shape;
+// cast once to read the optional test-only flags.
+const typedEnv = env as unknown as Bindings
 const isTestRouteEnabledFlag = isTestRouteEnabled({
   nodeEnv: env.NODE_ENV,
-  enableTestRoutes: (env as unknown as Bindings).ENABLE_TEST_ROUTES,
-  playwright: (env as unknown as Bindings).PLAYWRIGHT,
+  enableTestRoutes: typedEnv.ENABLE_TEST_ROUTES,
+  playwright: typedEnv.PLAYWRIGHT,
 })
 
 let alternateOrigin = /http:\/\/localhost(:\d+)?$/ // PRODUCTION:REMOVE

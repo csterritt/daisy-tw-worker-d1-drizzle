@@ -15,6 +15,13 @@
       "when": 1769522009945,
       "tag": "0001_careless_squadron_sinister",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1780856770343,
+      "tag": "0002_dizzy_the_liberteens",
+      "breakpoints": true
     }
   ]
 }

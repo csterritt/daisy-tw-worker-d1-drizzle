@@ -23,6 +23,8 @@ export interface UserWithAccountData {
   userEmail: string
   emailVerified: boolean
   accountUpdatedAt: Date | null
+  lastResetEmailAt: Date | null
+  lastVerificationEmailAt: Date | null
 }
 
 export interface UserIdData {
@@ -90,9 +92,13 @@ const getUserWithAccountByEmailActual = (
         userEmail: user.email,
         emailVerified: user.emailVerified,
         accountUpdatedAt: account.updatedAt,
+        lastResetEmailAt: account.lastResetEmailAt,
+        lastVerificationEmailAt: account.lastVerificationEmailAt,
       })
       .from(user)
-      .leftJoin(account, eq(account.userId, user.id))
+      // Scope the join to the credential account so future multi-provider
+      // accounts don't yield an arbitrary/stale row for rate-limit checks.
+      .leftJoin(account, and(eq(account.userId, user.id), eq(account.providerId, 'credential')))
       .where(eq(user.email, email))
       .limit(1),
   )
@@ -116,23 +122,55 @@ const getUserIdByEmailActual = (
   toResult(() => db.select({ id: user.id }).from(user).where(eq(user.email, email)).limit(1))
 
 /**
- * Update account timestamp for rate limiting
+ * Update the password-reset rate-limit timestamp for a user's account.
  * @param db - Database instance
  * @param userId - User ID whose account to update
  * @returns Promise<Result<boolean, Error>>
  */
-export const updateAccountTimestamp = (
+export const updateResetEmailTimestamp = (
   db: DrizzleClient,
   userId: string,
 ): Promise<Result<boolean, Error>> =>
-  withRetry('updateAccountTimestamp', () => updateAccountTimestampActual(db, userId))
+  withRetry('updateResetEmailTimestamp', () => updateResetEmailTimestampActual(db, userId))
 
-const updateAccountTimestampActual = async (
+const updateResetEmailTimestampActual = async (
   db: DrizzleClient,
   userId: string,
 ): Promise<Result<boolean, Error>> => {
   try {
-    await db.update(account).set({ updatedAt: new Date() }).where(eq(account.userId, userId))
+    await db
+      .update(account)
+      .set({ lastResetEmailAt: new Date() })
+      .where(and(eq(account.userId, userId), eq(account.providerId, 'credential')))
+    return Result.ok(true)
+  } catch (e) {
+    return Result.err(e instanceof Error ? e : new Error(String(e)))
+  }
+}
+
+/**
+ * Update the verification-email rate-limit timestamp for a user's account.
+ * @param db - Database instance
+ * @param userId - User ID whose account to update
+ * @returns Promise<Result<boolean, Error>>
+ */
+export const updateVerificationEmailTimestamp = (
+  db: DrizzleClient,
+  userId: string,
+): Promise<Result<boolean, Error>> =>
+  withRetry('updateVerificationEmailTimestamp', () =>
+    updateVerificationEmailTimestampActual(db, userId),
+  )
+
+const updateVerificationEmailTimestampActual = async (
+  db: DrizzleClient,
+  userId: string,
+): Promise<Result<boolean, Error>> => {
+  try {
+    await db
+      .update(account)
+      .set({ lastVerificationEmailAt: new Date() })
+      .where(and(eq(account.userId, userId), eq(account.providerId, 'credential')))
     return Result.ok(true)
   } catch (e) {
     return Result.err(e instanceof Error ? e : new Error(String(e)))
@@ -164,6 +202,39 @@ const claimSingleUseCodeActual = async (
       .update(singleUseCode)
       .set({ email })
       .where(and(eq(singleUseCode.code, code), isNull(singleUseCode.email)))
+    const rowsUpdated = result.meta?.changes || 0
+    return Result.ok(rowsUpdated === 1)
+  } catch (e) {
+    return Result.err(e instanceof Error ? e : new Error(String(e)))
+  }
+}
+
+/**
+ * Release a previously claimed single-use code so it can be used again.
+ * Only releases the code if it is still claimed by the given email, preventing
+ * one request from releasing a code another request legitimately claimed.
+ * @param db - Database instance
+ * @param code - The code to release
+ * @param email - The email the code was claimed by
+ * @returns Promise<Result<boolean, Error>> - true if the code was released
+ */
+export const releaseSingleUseCode = (
+  db: DrizzleClient,
+  code: string,
+  email: string,
+): Promise<Result<boolean, Error>> =>
+  withRetry('releaseSingleUseCode', () => releaseSingleUseCodeActual(db, code, email))
+
+const releaseSingleUseCodeActual = async (
+  db: DrizzleClient,
+  code: string,
+  email: string,
+): Promise<Result<boolean, Error>> => {
+  try {
+    const result = await db
+      .update(singleUseCode)
+      .set({ email: null })
+      .where(and(eq(singleUseCode.code, code), eq(singleUseCode.email, email)))
     const rowsUpdated = result.meta?.changes || 0
     return Result.ok(rowsUpdated === 1)
   } catch (e) {

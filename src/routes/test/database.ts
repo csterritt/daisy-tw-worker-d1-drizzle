@@ -244,6 +244,48 @@ testDatabaseRouter.get('/status', secureHeaders(STANDARD_SECURE_HEADERS), async 
 })
 
 /**
+ * Set lastVerificationEmailAt to now for a user by email (for rate-limit tests)
+ * POST /test/database/set-verification-timestamp/:email
+ */
+testDatabaseRouter.post(
+  '/set-verification-timestamp/:email',
+  secureHeaders(STANDARD_SECURE_HEADERS),
+  async (c) => {
+    try {
+      const email = decodeURIComponent(c.req.param('email'))
+      const db = createDbClient(c.env.PROJECT_DB)
+
+      const userResult = await db
+        .select({ id: user.id })
+        .from(user)
+        .where(eq(user.email, email))
+        .limit(1)
+
+      if (userResult.length === 0) {
+        return c.json({ success: false, error: 'User not found' }, 404)
+      }
+
+      await db
+        .update(account)
+        .set({ lastVerificationEmailAt: new Date() })
+        .where(and(eq(account.userId, userResult[0].id), eq(account.providerId, 'credential')))
+
+      return c.json({ success: true, email, timestamp: new Date().toISOString() })
+    } catch (error) {
+      console.error('Failed to set verification timestamp:', error)
+      return c.json(
+        {
+          success: false,
+          error: 'Failed to set verification timestamp',
+          details: error instanceof Error ? error.message : 'Unknown error',
+        },
+        500,
+      )
+    }
+  },
+)
+
+/**
  * Check if a single-use code exists in the database
  * GET /test/database/code-exists/:code
  */

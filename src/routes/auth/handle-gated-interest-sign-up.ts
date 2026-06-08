@@ -47,9 +47,7 @@ export const handleGatedInterestSignUp = (app: Hono<{ Bindings: Bindings }>): vo
   // Handle interest sign-up (waitlist)
   app.post(PATHS.AUTH.INTEREST_SIGN_UP, secureHeaders(STANDARD_SECURE_HEADERS), async (c) => {
     // Check if user is already signed in
-    const user = (c as unknown as { get: (key: string) => unknown }).get('user') as {
-      id: string
-    } | null
+    const user = c.get('user')
     if (user) {
       return redirectWithMessage(c, PATHS.PRIVATE, MESSAGES.ALREADY_SIGNED_IN)
     }

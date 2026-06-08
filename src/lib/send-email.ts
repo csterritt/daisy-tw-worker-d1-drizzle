@@ -2,6 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
+/**
+ * @file Intentionally retained utility (not currently wired into any route).
+ * Kept as a reusable SMTP send helper / reference implementation alongside
+ * the active email-service.ts transport. Do not delete without confirming it
+ * is no longer needed for future email flows.
+ */
+
 import nodemailer from 'nodemailer'
 import retry from 'async-retry'
 import Result from 'true-myth/result'
