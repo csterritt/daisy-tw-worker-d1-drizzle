@@ -138,6 +138,7 @@ export const ResetPasswordFormSchema = pipe(
     token: pipe(
       string(VALIDATION.REQUIRED),
       minLength(1, 'Invalid reset token. Please request a new password reset link.'),
+      maxLength(512, 'Invalid reset token. Please request a new password reset link.'),
     ),
     password: pipe(string(VALIDATION.REQUIRED), minLength(8, VALIDATION.PASSWORD_MIN_LENGTH)),
     confirmPassword: pipe(

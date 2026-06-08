@@ -1,1 +1,1 @@
-Read the Notes/tasks/1-invite-codes-can-be-burned.md file and implement the fix.
+Read the Notes/tasks/2-password-reset-token-url-encoding.md file and implement the fix.

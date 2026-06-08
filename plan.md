@@ -1,20 +1,28 @@
-# Fix: Invite codes burned on duplicate-email gated sign-up
+# Fix: Password reset token reflected into redirect URLs without URL encoding
 
 ## Problem
 
-In `processGatedSignUp` (`src/lib/sign-up-utils.ts:341-345`), when Better Auth returns a synthetic duplicate-account response and `userAlreadyExists` is true, the handler redirects to the await-verification page without calling `releaseClaimedCode()`. This permanently consumes the invite code even though no new account was created, allowing an attacker to exhaust invitation codes by submitting with known existing emails.
+In `handle-reset-password.ts`, the `token` value (from user-controlled form input or query string) is interpolated directly into redirect URLs at two locations:
+- Line 36: `${PATHS.AUTH.RESET_PASSWORD}?token=${tokenEntered}` (validation failure branch)
+- Line 78: `${PATHS.AUTH.RESET_PASSWORD}?token=${token}` (general error branch)
+
+A token containing `&`, `#`, `%0d%0a`, or other reserved characters can alter the resulting query string, break the reset form state, or produce unsafe redirect headers.
+
+Additionally, the `token` field in `ResetPasswordFormSchema` has no `maxLength` or pattern constraint.
 
 ## Assumptions
 
 - No database schema changes are needed; the fix is purely in application logic.
-- The existing `releaseClaimedCode()` helper already handles the DB release correctly.
+- Better Auth tokens use only URL-safe characters in practice, but we should not rely on that.
 
 ## Plan
 
-1. **Update failing test (Red)** — Change `e2e-tests/gated-sign-up/05-code-consumption-semantics.spec.ts` test "code IS consumed when sign-up fails due to duplicate email" to expect the code is NOT consumed (`existsAfter toBe true`), and update the test name/comment accordingly.
-2. **Fix the bug (Green)** — Add `await releaseClaimedCode()` before the redirect in the `userAlreadyExists` branch (`src/lib/sign-up-utils.ts:343-344`).
-3. **Verify** — Run all tests to confirm fix is correct and no regressions.
+1. **Write failing e2e test (Red)** — Add a test to `e2e-tests/reset-password/` that submits a token containing `&injected=true` and verifies the redirect URL has the token correctly encoded (i.e., `%26injected%3Dtrue`) rather than a broken query string.
+2. **Add token validation (Green)** — Add `maxLength(512, ...)` to the `token` field in `ResetPasswordFormSchema` in `src/lib/validators.ts`.
+3. **Fix URL encoding (Green)** — Replace bare `${token}` / `${tokenEntered}` interpolation in `handle-reset-password.ts` with `encodeURIComponent(token)` / `encodeURIComponent(tokenEntered)` at lines 36 and 78.
+4. **Verify** — Run all tests to confirm fix is correct and no regressions.
 
 ## Pitfalls
 
-- **Both branches of `isSyntheticDuplicateResponse`** — The `userAlreadyExists` branch needs the release; the non-`userAlreadyExists` branch (genuine duplicate from a race) should also be considered, but per the task only the `userAlreadyExists` path is the documented vulnerability.
+- The validation-failure branch (line 36) uses `rawBody.token` (pre-validation), so `tokenEntered` must also be encoded.
+- The `encodeURIComponent` call on the already-validated `token` (line 78) is also required since validation only checks length, not reserved-character content.
