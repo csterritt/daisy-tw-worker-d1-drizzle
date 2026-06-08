@@ -37,7 +37,7 @@ export interface UserIdData {
  * @param operation - The async operation to execute
  * @returns Promise<Result<T, Error>>
  */
-const withRetry = async <T>(
+export const withRetry = async <T>(
   operationName: string,
   operation: () => Promise<Result<T, Error>>,
 ): Promise<Result<T, Error>> => {

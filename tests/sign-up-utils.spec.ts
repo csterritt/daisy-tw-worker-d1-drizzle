@@ -5,22 +5,10 @@
 
 import { describe, it, expect } from 'bun:test'
 import { MESSAGES } from '../src/constants'
+import { isDuplicateEmailError } from '../src/lib/sign-up-utils'
 
 // Test the error message sanitization logic
 // We test the patterns and message handling without needing full Hono context
-
-const DUPLICATE_EMAIL_PATTERNS = [
-  'already exists',
-  'duplicate',
-  'unique constraint',
-  'unique',
-  'violates unique',
-]
-
-const isDuplicateEmailError = (message: string): boolean => {
-  const lowerMessage = message.toLowerCase()
-  return DUPLICATE_EMAIL_PATTERNS.some((pattern) => lowerMessage.includes(pattern))
-}
 
 // Simulates the error handling logic from handleSignUpResponseError
 const getErrorMessageForUser = (rawErrorMessage: string): string => {
