@@ -1,4 +1,4 @@
-import { clearDatabase, clearSessions, seedDatabase } from './db-helpers'
+import { clearDatabase, clearRateLimitCache, clearSessions, seedDatabase } from './db-helpers'
 
 /**
  * Wrapper type for Playwright test function
@@ -15,6 +15,7 @@ export const testWithDatabase = (testFn: PlaywrightTestFunction): PlaywrightTest
       await clearDatabase()
       await seedDatabase()
       await clearSessions()
+      await clearRateLimitCache()
 
       // Run the test
       await testFn({ page, request })

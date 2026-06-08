@@ -10,6 +10,7 @@ import { eq, and, isNull } from 'drizzle-orm'
 import { createDbClient } from '../../db/client'
 import { user, account, session, singleUseCode, interestedEmail } from '../../db/schema'
 import { STANDARD_SECURE_HEADERS } from '../../constants'
+import { emailRateLimitCache } from '../auth/handle-forgot-password'
 
 /**
  * Test-only database manipulation endpoints
@@ -318,5 +319,18 @@ testDatabaseRouter.get('/code-exists/:code', secureHeaders(STANDARD_SECURE_HEADE
     )
   }
 })
+
+/**
+ * Clear the in-memory password-reset rate-limit cache
+ * DELETE /test/database/clear-rate-limit-cache
+ */
+testDatabaseRouter.delete(
+  '/clear-rate-limit-cache',
+  secureHeaders(STANDARD_SECURE_HEADERS),
+  async (c) => {
+    emailRateLimitCache.clear()
+    return c.json({ success: true, message: 'Rate limit cache cleared' })
+  },
+)
 
 export { testDatabaseRouter }

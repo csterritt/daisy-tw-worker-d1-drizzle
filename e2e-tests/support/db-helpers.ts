@@ -122,6 +122,34 @@ export const checkCodeExists = async (code: string): Promise<boolean> => {
 }
 
 /**
+ * Clear the in-memory password-reset rate-limit cache on the server
+ * Calls test-only server endpoint to clear the cache
+ */
+export const clearRateLimitCache = async (): Promise<void> => {
+  try {
+    const response = await fetch('http://localhost:3000/test/database/clear-rate-limit-cache', {
+      method: 'DELETE',
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+    }
+
+    const result = (await response.json()) as {
+      success: boolean
+      error?: string
+    }
+
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to clear rate limit cache')
+    }
+  } catch (error) {
+    console.error('Failed to clear rate limit cache:', error)
+    throw error
+  }
+}
+
+/**
  * Seed database with test data
  * Calls test-only server endpoint to seed database
  */
