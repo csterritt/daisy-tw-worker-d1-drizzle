@@ -92,7 +92,7 @@ export const SignUpFormSchema = object({
   password: pipe(
     string(VALIDATION.REQUIRED),
     minLength(8, VALIDATION.PASSWORD_MIN_LENGTH),
-    maxLength(128, 'Password must be at most 128 characters long'),
+    maxLength(128, VALIDATION.PASSWORD_MAX_LENGTH),
   ),
 })
 
@@ -119,7 +119,7 @@ export const GatedSignUpFormSchema = object({
   password: pipe(
     string(VALIDATION.REQUIRED),
     minLength(8, VALIDATION.PASSWORD_MIN_LENGTH),
-    maxLength(128, 'Password must be at most 128 characters long'),
+    maxLength(128, VALIDATION.PASSWORD_MAX_LENGTH),
   ),
 })
 
@@ -140,10 +140,11 @@ export const ResetPasswordFormSchema = pipe(
       minLength(1, 'Invalid reset token. Please request a new password reset link.'),
       maxLength(512, 'Invalid reset token. Please request a new password reset link.'),
     ),
-    password: pipe(string(VALIDATION.REQUIRED), minLength(8, VALIDATION.PASSWORD_MIN_LENGTH)),
+    password: pipe(string(VALIDATION.REQUIRED), minLength(8, VALIDATION.PASSWORD_MIN_LENGTH), maxLength(128, VALIDATION.PASSWORD_MAX_LENGTH)),
     confirmPassword: pipe(
       string(VALIDATION.REQUIRED),
       minLength(8, VALIDATION.PASSWORD_MIN_LENGTH),
+      maxLength(128, VALIDATION.PASSWORD_MAX_LENGTH),
     ),
   }),
   custom((data) => {
@@ -161,10 +162,11 @@ export const ChangePasswordFormSchema = pipe(
       string(VALIDATION.REQUIRED),
       minLength(1, 'Current password is required.'),
     ),
-    newPassword: pipe(string(VALIDATION.REQUIRED), minLength(8, VALIDATION.PASSWORD_MIN_LENGTH)),
+    newPassword: pipe(string(VALIDATION.REQUIRED), minLength(8, VALIDATION.PASSWORD_MIN_LENGTH), maxLength(128, VALIDATION.PASSWORD_MAX_LENGTH)),
     confirmPassword: pipe(
       string(VALIDATION.REQUIRED),
       minLength(8, VALIDATION.PASSWORD_MIN_LENGTH),
+      maxLength(128, VALIDATION.PASSWORD_MAX_LENGTH),
     ),
     userInfo: optional(
       pipe(

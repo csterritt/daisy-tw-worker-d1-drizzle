@@ -1,1 +1,1 @@
-Read the Notes/tasks/5-e2e-test-isolation-helpers-hardcode-localhost.md file and implement the fix.
+Read the Notes/tasks/6-password-reset-change-password-validation-inconsistent.md file and implement the fix.
