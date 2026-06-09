@@ -12,15 +12,16 @@ export const testWithDatabase = (testFn: PlaywrightTestFunction): PlaywrightTest
   return async ({ page, request }) => {
     try {
       // Setup: Clear and seed database
-      await clearDatabase()
-      await seedDatabase()
-      await clearSessions()
-      await clearRateLimitCache()
+      await clearDatabase(request)
+      await seedDatabase(request)
+      await clearSessions(request)
+      await clearRateLimitCache(request)
 
       // Run the test
       await testFn({ page, request })
     } finally {
       // Cleanup: Clear database after test
+      // Do not use the request fixture here — it may already be disposed.
       await clearDatabase()
     }
   }

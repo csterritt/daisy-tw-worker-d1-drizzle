@@ -1,4 +1,7 @@
+import type { APIRequestContext } from '@playwright/test'
 import { test } from '@playwright/test'
+
+import { SERVER_BASE_URL } from './test-data'
 
 export type SignUpMode =
   | 'OPEN_SIGN_UP'
@@ -10,9 +13,13 @@ export type SignUpMode =
 /**
  * Detects the current sign-up mode by calling the test endpoint
  */
-export const detectSignUpMode = async (): Promise<SignUpMode> => {
+export const detectSignUpMode = async (
+  request?: Pick<APIRequestContext, 'get'>,
+): Promise<SignUpMode> => {
   try {
-    const response = await fetch('http://localhost:3000/test/sign-up-mode')
+    const response = request
+      ? await request.get('/test/sign-up-mode')
+      : await fetch(`${SERVER_BASE_URL}/test/sign-up-mode`)
 
     if (!response.ok) {
       console.error('Failed to fetch sign-up mode:', response.status, response.statusText)

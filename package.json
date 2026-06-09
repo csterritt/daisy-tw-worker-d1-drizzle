@@ -12,7 +12,8 @@
     "cf-typegen": "wrangler types --env-interface Bindings",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "test:unit": "bun test tests/*"
+    "test:unit": "bun test tests/*",
+    "test:e2e": "npx playwright test"
   },
   "dependencies": {
     "async-retry": "1.3.3",
