@@ -1,1 +1,1 @@
-Read the Notes/tasks/7-sensitive-user-identifiers-logged.md file and implement the fix.
+Read the Notes/tasks/8-test-coverage-security-edge-case-gaps.md file and implement the fix.

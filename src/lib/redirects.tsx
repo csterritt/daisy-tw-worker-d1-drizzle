@@ -3,10 +3,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { Context } from 'hono'
+import { getCookie } from 'hono/cookie'
 
 import { COOKIES, HTML_STATUS } from '../constants'
 import { Bindings } from '../local-types'
-import { addCookie } from './cookie-support'
 
 /**
  * Helper function to redirect with a message cookie
@@ -20,11 +20,16 @@ export const redirectWithMessage = <E extends { Bindings: Bindings }>(
   redirectUrl: string,
   message: string,
 ): Response => {
+  const response = c.redirect(redirectUrl, HTML_STATUS.SEE_OTHER)
   if (message.trim() !== '') {
-    addCookie(c, COOKIES.MESSAGE_FOUND, message)
+    // Set cookie on the response directly
+    const cookieOptions = Object.entries(COOKIES.STANDARD_COOKIE_OPTIONS)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('; ')
+    const cookieValue = `${COOKIES.MESSAGE_FOUND}=${encodeURIComponent(message)}; ${cookieOptions}`
+    response.headers.append('Set-Cookie', cookieValue)
   }
-
-  return c.redirect(redirectUrl, HTML_STATUS.SEE_OTHER)
+  return response
 }
 
 /**
@@ -39,6 +44,11 @@ export const redirectWithError = <E extends { Bindings: Bindings }>(
   redirectUrl: string,
   errorMessage: string,
 ): Response => {
-  addCookie(c, COOKIES.ERROR_FOUND, errorMessage)
-  return c.redirect(redirectUrl, HTML_STATUS.SEE_OTHER)
+  const response = c.redirect(redirectUrl, HTML_STATUS.SEE_OTHER)
+  const cookieOptions = Object.entries(COOKIES.STANDARD_COOKIE_OPTIONS)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('; ')
+    const cookieValue = `${COOKIES.ERROR_FOUND}=${encodeURIComponent(errorMessage)}; ${cookieOptions}`
+  response.headers.append('Set-Cookie', cookieValue)
+  return response
 }
