@@ -43,3 +43,15 @@ Implemented the `Notes/tasks/` Decision items and recorded the resulting source/
 - **Type safety:** removed/narrowed `@ts-ignore` and `as unknown` casts in `index.ts`, `time-access.ts`, `email-service.ts`, and the auth route files (Task 10).
 - **New unit tests:** `tests/email-utils.spec.ts`, `tests/sign-up-name-classification.spec.ts`; updated `unit-tests.md` (5 → 7 spec files).
 - Tasks 5, 6, 9 were intentionally left as-is per their Decision sections (IGNORE).
+
+
+## [2026-06-06] ingest | Wiki index updates for new source and test files
+
+Updated wiki index files to reflect new/changed source and test files:
+
+- **New source file:** `src/lib/logger.ts` — Structured logging utility with sensitive field sanitization; added page and linked it in `source-code.md` (61 → 62 files).
+- **New E2E test:** `e2e-tests/reset-password/08-password-reset-token-url-encoding.spec.ts` — URL encoding of password reset tokens in email links; added page and linked it in `e2e-tests.md` (47 → 48 spec files).
+- **New unit tests (2):** `tests/validators.spec.ts` (password max length validation) and `tests/email-utils.spec.ts` (email normalization); created `unit-tests.md` catalog with all 7 unit test files.
+- **Updated source files:** `src/routes/auth/handle-forgot-password.ts`, `src/routes/auth/handle-reset-clock.ts`, `src/routes/auth/handle-set-clock.ts`, `src/routes/test/database.ts`, `src/routes/test/sign-up-mode.ts`, `src/types.d.ts` — refreshed wiki pages.
+- **Updated E2E tests:** `e2e-tests/gated-sign-up/03-page-navigation-buttons.spec.ts`, `e2e-tests/gated-sign-up/04-name-validation.spec.ts`, `e2e-tests/gated-sign-up/05-code-consumption-semantics.spec.ts`, `e2e-tests/interest-sign-up/04-page-navigation-buttons.spec.ts` — refreshed wiki pages.
+- **Updated unit tests:** `tests/sign-up-name-classification.spec.ts` — refreshed wiki page.

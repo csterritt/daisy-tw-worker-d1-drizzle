@@ -1,6 +1,5 @@
 # E2E Tests Catalog
-
-Catalog of all Playwright end-to-end tests under `e2e-tests/` (47 spec files + 11 support files), organized by feature area. Each file links to its individual wiki page.
+Catalog of all Playwright end-to-end tests under `e2e-tests/` (48 spec files + 11 support files), organized by feature area. Each file links to its individual wiki page.
 
 ## Support utilities (`e2e-tests/support/`)
 
@@ -64,6 +63,7 @@ Catalog of all Playwright end-to-end tests under `e2e-tests/` (47 spec files + 1
 - [e2e-tests/reset-password/05-password-reset-navigation.spec.ts](./e2e-tests/reset-password/05-password-reset-navigation.spec.md) — Navigation within reset password flow.
 - [e2e-tests/reset-password/06-password-reset-rate-limiting.spec.ts](./e2e-tests/reset-password/06-password-reset-rate-limiting.spec.md) — Rate limiting on repeated reset requests.
 - [e2e-tests/reset-password/07-password-reset-email-send-failure.spec.ts](./e2e-tests/reset-password/07-password-reset-email-send-failure.spec.md) — Graceful handling when email send fails.
+- [e2e-tests/reset-password/08-password-reset-token-url-encoding.spec.ts](./e2e-tests/reset-password/08-password-reset-token-url-encoding.spec.md) — URL encoding of password reset tokens in email links.
 
 ## Sign-in (`e2e-tests/sign-in/`)
 

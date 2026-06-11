@@ -1,6 +1,6 @@
 # Source Code Catalog
 
-Catalog of all source files under `src/` (61 files total), organized by category. Each file links to its individual wiki page.
+Catalog of all source files under `src/` (62 files total), organized by category. Each file links to its individual wiki page.
 
 ## Core application
 
@@ -31,6 +31,7 @@ Catalog of all source files under `src/` (61 files total), organized by category
 - [src/lib/db-access.ts](./src/lib/db-access.md) — Database access helpers with retry logic for D1 queries. Includes `updateResetEmailTimestamp`/`updateVerificationEmailTimestamp` (dedicated rate-limit clocks) and `releaseSingleUseCode`; `getUserWithAccountByEmail` scopes its account join to `providerId='credential'`.
 - [src/lib/email-service.ts](./src/lib/email-service.md) — Email template builders and sending logic for confirmation and password-reset emails. Production transport now throws on non-2xx responses so delivery failures are not silently swallowed.
 - [src/lib/email-utils.ts](./src/lib/email-utils.md) — `normalizeEmail` helper (trim + lowercase) so app-level DB lookups match Better Auth's internally normalized addresses.
+- [src/lib/logger.ts](./src/lib/logger.md) — Structured logging utility with automatic sanitization of sensitive fields (passwords, tokens, emails, etc.).
 - [src/lib/generate-code.ts](./src/lib/generate-code.md) — Single-use sign-up code generation utility.
 - [src/lib/po-notify.ts](./src/lib/po-notify.md) — Pushover notification integration (optional).
 - [src/lib/redirects.tsx](./src/lib/redirects.md) — JSX-based redirect response builders.
