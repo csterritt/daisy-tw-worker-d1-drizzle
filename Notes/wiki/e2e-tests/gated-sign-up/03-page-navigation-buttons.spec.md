@@ -8,9 +8,16 @@ Navigation element tests on the gated sign-up page.
 
 ## Test cases
 
-- `gated sign-up page has sign-in link` — "Sign In Instead" link navigates to sign-in page
-- `gated sign-up page has home navigation` — home button navigates to startup page
-- `gated sign-up page has correct title` — page title contains "Create Your Account"
+- `sign-in page shows Create Account button` — verifies the sign-in page has a "Create Account" button that navigates to gated sign-up
+- `can navigate between sign-in and gated sign-up pages` — navigates between sign-in and gated sign-up pages using the navigation buttons
+- `gated sign-up page has correct form elements` — verifies form elements on gated sign-up page (name, email, password, code inputs, submit button, sign-in link, and h2 title containing "Create Account")
+
+## Cross-references
+
+- [finders.md](../../support/finders.md) — `clickLink`, `isElementVisible`
+- [page-verifiers.md](../../support/page-verifiers.md) — `verifyOnSignInPage`, `verifyOnGatedSignUpPage`
+- [mode-helpers.md](../../support/mode-helpers.md) — `skipIfNotMode`
+- [navigation-helpers.md](../../support/navigation-helpers.md) — `navigateToSignIn`, `navigateToGatedSignUp`
 
 ---
 

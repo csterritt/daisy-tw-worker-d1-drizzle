@@ -14,7 +14,7 @@ Route: `GET /auth/set-clock/:delta`
 
 - `:delta` — milliseconds to shift the clock forward (positive) or backward (negative)
 
-Sets the `delta` cookie via `setCurrentDelta` and returns JSON: `{ ok: true, delta }`
+Sets the `delta` cookie via `setCurrentDelta` and redirects to `/` with message `'Clock set!'`.
 
 ## Cross-references
 

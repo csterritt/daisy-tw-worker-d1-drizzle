@@ -14,8 +14,7 @@ Hono sub-router with routes:
 
 | Method | Path | Purpose                                                   |
 | ------ | ---- | --------------------------------------------------------- |
-| `GET`  | `/`  | Returns current `SIGN_UP_MODE` as JSON                    |
-| `POST` | `/`  | Accepts `{ mode }` to override `SIGN_UP_MODE` for testing |
+| `GET`  | `/`  | Returns current `SIGN_UP_MODE` as plain text              |
 
 ## Cross-references
 

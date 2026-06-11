@@ -4,11 +4,21 @@
 
 ## Purpose
 
-Ambient type declarations. In this file it provides a type declaration for global `test` variable (used by Playwright and other test environments to detect test mode).
+Ambient type declarations for Cloudflare Workers bindings and Hono context variables.
 
 ## Types
 
-- Declares `var test: unknown` globally
+### `Bindings` interface
+
+- `PROJECT_DB: D1Database` — D1 database binding
+
+### Hono `ContextVariableMap` augmentation
+
+- `db: DrizzleD1Database<typeof schema>` — Drizzle database client
+- `user: AuthUser | null` — authenticated user from Better Auth
+- `session: AuthSession | null` — auth session
+- `authSession: AuthSessionResponse | null` — auth session response
+- `signInEmail?: string` — email being used for sign-in flow
 
 ---
 

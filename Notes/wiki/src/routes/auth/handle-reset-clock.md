@@ -12,7 +12,7 @@ Dev-only test route that clears the clock manipulation `delta` cookie, restoring
 
 Route: `GET /auth/reset-clock`
 
-Calls `clearCurrentDelta` and returns JSON: `{ ok: true }`
+Calls `clearCurrentDelta` and redirects to `/` with message `'Clock reset!'`.
 
 ## Cross-references
 
