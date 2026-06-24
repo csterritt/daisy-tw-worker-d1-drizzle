@@ -12,8 +12,10 @@ POST handler for sign-out (`POST /auth/sign-out`). Calls Better Auth to invalida
 
 ### Flow
 
-1. Calls `auth.api.signOut()` — Better Auth handles session invalidation and cookie clearing
-2. Redirects to `/auth/sign-out` (the GET confirmation page)
+1. Constructs a `POST /api/auth/sign-out` request and calls `auth.handler(authRequest)`
+2. If successful (200), copies Set-Cookie headers from the auth response onto a redirect to `/auth/sign-out`
+3. On failure, manually removes `better-auth.session_token` and `better-auth.session_data` cookies, then redirects to `/auth/sign-out`
+4. On error, redirects to `/auth/sign-out` with error message
 
 ## Cross-references
 

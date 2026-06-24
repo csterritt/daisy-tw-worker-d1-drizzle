@@ -19,9 +19,10 @@ Middleware chain:
 
 ### Page content
 
+- Page with `data-testid='delete-confirm-page'`
 - Warning alert about irreversible deletion
 - Confirmation form (`POST /profile/delete`):
-  - "Delete My Account" button — `data-testid='confirm-delete-action'`
+  - "Delete This Account" button — `data-testid='confirm-delete-action'`
 - "Cancel" link back to `/profile` — `data-testid='cancel-delete-action'`
 
 ## Cross-references

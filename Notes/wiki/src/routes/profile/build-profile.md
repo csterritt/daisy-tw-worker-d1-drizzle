@@ -19,11 +19,14 @@ Middleware chain:
 
 ### Page content
 
-- User info card showing email and name
-- **Change Password** form (`POST /profile`):
+- Page with `data-testid='profile-page'`
+- "Back" button to `/private` — `data-testid='go-back-action'`
+- User info section showing name (`data-testid='profile-name'`) and email (`data-testid='profile-email'`)
+- **Change Password** form (`POST /profile`, `noValidate`):
   - Current password — `data-testid='current-password-input'`
-  - New password — `data-testid='new-password-input'`
-  - Confirm new password — `data-testid='confirm-password-input'`
+  - New password — `data-testid='new-password-input'`, `minLength=8`
+  - Confirm new password — `data-testid='confirm-password-input'`, `minLength=8`
+  - Humorous question of the day — `data-testid='humorous-question'`
   - Submit — `data-testid='change-password-action'`
 - **Delete Account** section with link to `/profile/delete-confirm` — `data-testid='delete-account-action'`
 

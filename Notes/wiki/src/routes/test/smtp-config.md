@@ -8,16 +8,20 @@ Dev-only test endpoint for SMTP configuration. Mounted at `/test`.
 
 ## Exports
 
+### `getTestSmtpConfig()`
+
+Returns the current test SMTP config override (`{ host?, port? }` or `null`). Used by `email-service.ts` to check for test overrides.
+
 ### `testSmtpRouter`
 
 Hono sub-router with routes:
 
-| Method | Path           | Purpose                                              |
-| ------ | -------------- | ---------------------------------------------------- |
-| `GET`  | `/smtp-config` | Returns current SMTP host/port configuration as JSON |
-| `POST` | `/smtp-config` | Overrides SMTP configuration for testing             |
+| Method | Path                 | Purpose                                          |
+| ------ | -------------------- | ------------------------------------------------ |
+| `POST` | `/set-smtp-config`   | Overrides SMTP host/port for testing (JSON body) |
+| `POST` | `/reset-smtp-config` | Clears the SMTP config override                  |
 
-Used by E2E tests to read emails from the local SMTP test server.
+Mounted at `/test` in `index.ts`.
 
 ## Cross-references
 

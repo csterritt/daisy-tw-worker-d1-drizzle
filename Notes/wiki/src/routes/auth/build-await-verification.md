@@ -15,7 +15,7 @@ Route: `GET /auth/await-verification`
 ### Behavior
 
 1. Reads `EMAIL_ENTERED` cookie for the user's email
-2. If no cookie → redirects to `/auth/sign-in` with `'Please sign in to continue.'`
+2. If no cookie → redirects to `/auth/sign-in` with empty message
 3. Clears the cookie after reading
 4. Renders the await-verification page
 

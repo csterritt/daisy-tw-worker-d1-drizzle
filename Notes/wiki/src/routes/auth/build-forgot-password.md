@@ -14,10 +14,10 @@ Route: `GET /auth/forgot-password`
 
 Renders:
 
-- Card with title "Reset Your Password"
-- Form (`POST /auth/forgot-password`) with:
-  - Email field — `data-testid='forgot-email-input'`
-  - Submit button — `data-testid='forgot-password-action'`
+- Card with `data-testid='forgot-password-page'`, title "Reset Your Password"
+- Form (`POST /auth/forgot-password`, `noValidate`) with:
+  - Email field — `data-testid='forgot-email-input'`, `autoFocus`
+  - Submit button — `data-testid='forgot-password-action'` (text: "Send Reset Link")
 - "Back to Sign In" link — `data-testid='back-to-sign-in-action'`
 
 ## Cross-references

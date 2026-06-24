@@ -69,10 +69,11 @@ Cookie names and standard options.
 - `EMAIL_INVALID` — `'Please enter a valid email address.'`
 - `NAME_REQUIRED` — `'Name is required'`
 - `PASSWORD_MIN_LENGTH` — `'Password must be at least 8 characters long.'`
+- `PASSWORD_MAX_LENGTH` — `'Password must be at most 128 characters long.'`
 
 ### `MESSAGES`
 
-User-facing flash messages for common scenarios: unauthorized, invalid input, already signed in, verify email before sign-in, generic errors, registration errors, reset password message, account already exists, new verification email sent.
+User-facing flash messages for common scenarios: unauthorized, invalid input, invalid request method, already signed in, verify email before sign-in, generic errors, registration errors, reset password message, account already exists, new verification email sent, display name taken.
 
 ### `MESSAGE_BUILDERS`
 

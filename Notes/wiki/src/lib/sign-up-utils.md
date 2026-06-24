@@ -22,6 +22,10 @@ Shared logic for all sign-up flows (open, gated, interest). Handles duplicate-em
 
 `['constraint', 'sqlite_constraint']`
 
+### `DUPLICATE_NAME_PATTERNS`
+
+`['user.name', 'user_name_unique']` — patterns that indicate a unique violation on the display-name column rather than email.
+
 ## Exports
 
 ### `isSyntheticDuplicateResponse(response): boolean`
@@ -40,6 +44,10 @@ Checks if the error message matches any `DUPLICATE_EMAIL_PATTERNS` or contains b
 
 Checks if the error message matches any `CONSTRAINT_ERROR_PATTERNS`.
 
+### `isDuplicateNameError(errorMessage): boolean`
+
+Checks if the error message matches any `DUPLICATE_NAME_PATTERNS`.
+
 ### `extractErrorMessage(error): string`
 
 Returns `error.message` if an `Error`, otherwise `String(error)`.
@@ -48,16 +56,17 @@ Returns `error.message` if an `Error`, otherwise `String(error)`.
 
 If the response is an error object:
 
+- Duplicate name → redirects to `fallbackPath` with `MESSAGES.DISPLAY_NAME_TAKEN`
 - Duplicate email → sets `EMAIL_ENTERED` cookie and redirects to `await-verification` with `MESSAGES.ACCOUNT_ALREADY_EXISTS`
 - Otherwise → redirects to `fallbackPath` with `MESSAGES.REGISTRATION_GENERIC_ERROR`
 
 ### `handleSignUpApiError(c, error, email, fallbackPath): Response`
 
-Catches better-auth API exceptions. Same duplicate/constraint detection logic; falls back to generic error redirect.
+Catches better-auth API exceptions. Checks for duplicate name, duplicate email, and constraint errors; falls back to generic error redirect.
 
 ### `updateAccountTimestampAfterSignUp(db, email): Promise<void>`
 
-Looks up user by email and updates `account.updatedAt`. Logs on failure but does not throw.
+Looks up user by email and updates `account.lastVerificationEmailAt` via `updateVerificationEmailTimestamp`. Logs on failure but does not throw.
 
 ### `redirectToAwaitVerification(c, email): Response`
 
@@ -68,14 +77,15 @@ Sets `EMAIL_ENTERED` cookie and redirects to `/auth/await-verification`.
 Full gated sign-up flow:
 
 1. Atomically claim the single-use code via `claimSingleUseCode`
-2. Call `auth.api.signUpEmail` with `callbackURL`
-3. Handle synthetic duplicates and error responses
-4. Update account timestamp
-5. Redirect to await-verification
+2. Check if user already exists by email
+3. Call `auth.api.signUpEmail` with `callbackURL`
+4. Handle synthetic duplicates and error responses (releasing the code on failure)
+5. Update verification email timestamp
+6. Redirect to await-verification
 
 ## Cross-references
 
-- [db-access.md](db-access.md) — `claimSingleUseCode`, `getUserIdByEmail`, `updateAccountTimestamp`
+- [db-access.md](db-access.md) — `claimSingleUseCode`, `getUserIdByEmail`, `updateVerificationEmailTimestamp`, `releaseSingleUseCode`
 - [validators.md](validators.md) — validation schemas
 - [constants.md](../constants.md) — `PATHS`, `COOKIES`, `MESSAGES`
 

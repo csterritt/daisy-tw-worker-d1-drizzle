@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Tailwind CSS entrypoint. Contains `@tailwind base`, `@tailwind components`, `@tailwind utilities`, plus a few custom utility classes (e.g., `btn-primary`, `alert-error`, etc. via DaisyUI). Processed by the build pipeline into a fingerprinted asset (`style-{timestamp}.css`) linked by the renderer.
+Tailwind CSS v4 entrypoint. Uses `@import 'tailwindcss'`, `@source` for content scanning, `@plugin "daisyui"` for DaisyUI integration, and `@theme` to define a set of custom font-family CSS variables (system, transitional, oldstyle, humanist, geohumanist, classhuman, neogrote, monoslab, monocode, industrial, roundsans, slabserif, antique, didone, handwritten). Processed by the build pipeline into a fingerprinted asset (`style-{timestamp}.css`) linked by the renderer.
 
 ## Cross-references
 

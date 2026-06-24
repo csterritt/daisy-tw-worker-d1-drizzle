@@ -31,7 +31,11 @@ Centralized test data to eliminate hardcoded credentials across E2E tests.
 
 ### `ERROR_MESSAGES`
 
-Constant strings for all expected flash/alert messages: invalid credentials, email not verified, must sign in, sign-out success, sign-in success, invalid email, duplicate email, invalid code, waitlist success/already on waitlist, reset link sent, password reset success, account deleted.
+Constant strings for all expected flash/alert messages: invalid credentials, email not verified, must sign in, sign-out success, sign-in success, invalid email, email required, password required, name required, code required, invalid name characters, duplicate email, invalid code, waitlist success/already on waitlist, reset link sent, password reset success, account deleted.
+
+### `SERVER_BASE_URL`
+
+`'http://localhost:3000'` — base URL for all test API calls.
 
 ### `BASE_URLS`
 

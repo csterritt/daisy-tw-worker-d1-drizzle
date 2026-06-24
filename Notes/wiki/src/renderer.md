@@ -23,7 +23,7 @@ Configured with `{ docType: true }` to emit `<!DOCTYPE html>`.
 
 ## Cross-references
 
-- [style.css.md](style.css.md) — the linked stylesheet
+- [style.md](style.md) — the linked stylesheet
 
 ---
 

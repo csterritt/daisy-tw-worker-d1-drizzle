@@ -13,11 +13,13 @@ Factory that creates and configures the better-auth instance. Called once per re
 Builds a better-auth instance with the following configuration:
 
 - **Database** — `drizzleAdapter(dbClient, { schema })` from `../db/client.ts` and `../db/schema.ts`
-- **Email & Password** — enabled, `requireEmailVerification: true`
+- **Email & Password** — enabled, `requireEmailVerification: true`, `minPasswordLength: 8`, `maxPasswordLength: 128`
 - **Email Verification** — `sendVerificationEmail` callback sends a confirmation email via `sendConfirmationEmail()` from `email-service.ts`
 - **Password Reset** — `sendResetPassword` callback sends a reset email via `sendPasswordResetEmail()` from `email-service.ts`
 - **Session** — expires in `THIRTY_DAYS_IN_SECONDS`, updates every `ONE_DAY_IN_SECONDS`, cookie cache enabled with `FIVE_MINUTES_IN_SECONDS` max age
-- **Trusted Origins** — `['http://localhost:3000', 'http://localhost:8787', 'https://cls.cloud', 'https://mini-auth.cls.cloud']`
+- **Trusted Origins** — `['http://localhost:3000', 'http://127.0.0.1:3000', alternateOrigin]` where `alternateOrigin` defaults to `'http://localhost:3000/'` and can be overridden by `env.ALTERNATE_ORIGIN`
+- **Base URL** — `'http://localhost:3000'` (dev)
+- **Redirect To** — `'/private'` (redirect after successful sign-in)
 - **Secret** — `env.BETTER_AUTH_SECRET`
 
 ## Cross-references
@@ -26,6 +28,12 @@ Builds a better-auth instance with the following configuration:
 - [email-service.md](email-service.md) — `sendConfirmationEmail`, `sendPasswordResetEmail`
 - [constants.md](../constants.md) — `DURATIONS`
 - [local-types.md](../local-types.md) — `Bindings`
+
+## Type export
+
+### `Auth`
+
+`ReturnType<typeof createAuth>` — the configured better-auth instance type.
 
 ---
 

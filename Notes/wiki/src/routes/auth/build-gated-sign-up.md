@@ -17,6 +17,11 @@ Route: `GET /auth/sign-up`
 1. Authenticated users are redirected to `/private` with `'You are already signed in.'`
 2. Renders the gated sign-up form
 
+### Page content
+
+- Card with `data-testid='sign-up-page-banner'`, title "Create Account"
+- Description text: "A sign-up code is required to create an account."
+
 ### Form
 
 Uses the shared `<GatedSignUpForm />` component with `emailEntered` from `EMAIL_ENTERED` cookie.

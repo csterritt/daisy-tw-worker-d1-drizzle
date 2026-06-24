@@ -12,15 +12,12 @@ Dev-only test route to simulate database failures for resilience testing. Uses c
 
 Route: `GET /auth/set-db-failures/:name/:times`
 
-- `:name` — operation name to simulate failures for
-- `:times` — number of consecutive failures before success
+- `:name` — must be one of `DB_FAIL_COUNT` or `DB_FAIL_INCR` (validated against an allow-list)
+- `:times` — numeric value to set the cookie to
 
-Sets cookies:
+Sets a cookie with the given `:name` to the value `:times` using `addCookie`.
 
-- `DB_FAIL_COUNT_{name}` — current failure count
-- `DB_FAIL_INCR_{name}` — max failures allowed
-
-Returns JSON: `{ ok: true, name, times }`
+Redirects to `PATHS.ROOT` (with error message if params are invalid).
 
 Used by E2E tests to verify retry logic in `db-access.ts`.
 

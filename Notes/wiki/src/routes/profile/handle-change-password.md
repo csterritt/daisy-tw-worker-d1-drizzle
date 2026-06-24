@@ -12,12 +12,17 @@ POST handler for changing password (`POST /profile`). Requires authentication.
 
 ### Flow
 
-1. Parses request body
-2. Validates with `ChangePasswordFormSchema` (currentPassword, newPassword, confirmPassword)
-3. If invalid → redirects to `/profile` with error
-4. Calls `auth.api.changePassword({ body: { currentPassword, newPassword, revokeOtherSessions: true } })`
-5. On success → redirects to `/profile` with `'Your password has been changed successfully.'`
-6. On failure → redirects to `/profile` with error
+Middleware chain: `secureHeaders(STANDARD_SECURE_HEADERS)`, `signedInAccess`
+
+1. Gets current user from context
+2. Parses request body
+3. Validates with `ChangePasswordFormSchema` (currentPassword, newPassword, confirmPassword)
+4. If invalid → truncates error at first comma, redirects to `/profile` with error
+5. Calls `auth.api.changePassword({ body: { currentPassword, newPassword, revokeOtherSessions: true }, headers: c.req.raw.headers })`
+6. On success → redirects to `/profile` with `'Your password has been successfully changed.'`
+7. On password error (incorrect/invalid) → redirects to `/profile` with `'Current password is incorrect. Please try again.'`
+8. On other error → redirects to `/profile` with `'An error occurred while changing your password. Please try again.'`
+9. On handler error → redirects to `/profile` with `'An error occurred. Please try again.'`
 
 ## Cross-references
 

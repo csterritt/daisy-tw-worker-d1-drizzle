@@ -52,6 +52,8 @@ Better-auth account table. Stores provider info and password hash.
 | `password`              | text                |                                       |
 | `createdAt`             | integer (timestamp) | notNull                               |
 | `updatedAt`             | integer (timestamp) | notNull                               |
+| `lastResetEmailAt`      | integer (timestamp) |                                       |
+| `lastVerificationEmailAt` | integer (timestamp) |                                       |
 
 ### `verification`
 

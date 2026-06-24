@@ -12,15 +12,15 @@ Test wrapper that provides database isolation for every Playwright test.
 
 Returns a wrapped test function that:
 
-1. **Before** — calls `clearDatabase()`, `seedDatabase()`, `clearSessions()`
+1. **Before** — calls `clearDatabase(request)`, `seedDatabase(request)`, `clearSessions(request)`, `clearRateLimitCache(request)`
 2. **Runs** the actual test
-3. **After** (in `finally`) — calls `clearDatabase()` again
+3. **After** (in `finally`) — calls `clearDatabase()` again (without `request` fixture, which may be disposed)
 
 This ensures each test starts from a known clean state.
 
 ## Cross-references
 
-- [db-helpers.md](db-helpers.md) — `clearDatabase`, `seedDatabase`, `clearSessions`
+- [db-helpers.md](db-helpers.md) — `clearDatabase`, `seedDatabase`, `clearSessions`, `clearRateLimitCache`
 
 ---
 

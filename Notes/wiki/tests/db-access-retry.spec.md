@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Tests the retry wrapper logic similar to what `db-access.ts` uses. Exercises `async-retry` with `true-myth` Result types.
+Tests the retry wrapper logic from `db-access.ts`. Exercises `withRetry` with `true-myth` Result types.
 
 ## Key logic tested
 
@@ -12,15 +12,16 @@ Tests the retry wrapper logic similar to what `db-access.ts` uses. Exercises `as
 
 - Returns success immediately when the operation succeeds on the first try
 - Retries on `Result.err` and eventually succeeds after transient failures
-- Returns `Result.err` after exhausting all retries (1 initial + 3 retries = 4 total calls)
+- Returns `Result.err` after exhausting all retries (1 initial + 5 retries = 6 total calls, per `STANDARD_RETRY_OPTIONS.retries`)
 - Retries on thrown exceptions (not just `Result.err`)
 - Preserves the original error object after retries exhaust
 
 ## Dependencies
 
-- `async-retry`
+- `src/lib/db-access` — `withRetry`
+- `src/constants` — `STANDARD_RETRY_OPTIONS`
 - `true-myth/result`
 
 ---
 
-See [tests.md](../tests.md) for the full catalog.
+See [unit-tests.md](../unit-tests.md) for the full catalog.

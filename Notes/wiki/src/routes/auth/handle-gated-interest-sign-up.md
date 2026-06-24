@@ -4,7 +4,7 @@
 
 ## Purpose
 
-POST handler for combined gated + interest sign-up (`POST /auth/sign-up`). Only active in `BOTH_SIGN_UP` mode. Routes to either gated sign-up or interest sign-up depending on which form was submitted.
+POST handler for combined gated + interest sign-up. Only active in `INTEREST_SIGN_UP` mode (when gated codes are also available). Registers two separate POST routes: one for gated sign-up and one for interest/waitlist sign-up.
 
 ## Export
 
@@ -12,12 +12,23 @@ POST handler for combined gated + interest sign-up (`POST /auth/sign-up`). Only 
 
 ### Flow
 
+### `POST /auth/sign-up` (gated sign-up)
+
 1. Parses request body
-2. Detects which form was submitted by checking for `code` field:
-   - If `code` exists → validates with `GatedSignUpFormSchema` and routes to gated sign-up logic
-   - Otherwise → validates with `InterestSignUpFormSchema` and routes to interest sign-up logic
-3. Gated flow: claims code, then `processGatedSignUp`
-4. Interest flow: adds email to `interestedEmail` table, redirects with success message
+2. Validates with `GatedSignUpFormSchema`
+3. If invalid → redirects to `/auth/sign-up` with error
+4. Delegates to `processGatedSignUp` from `sign-up-utils.ts`
+
+### `POST /auth/interest-sign-up` (interest/waitlist)
+
+1. Checks if user is already signed in → redirects to `/private` with `MESSAGES.ALREADY_SIGNED_IN`
+2. Parses request body
+3. Validates with `InterestSignUpFormSchema`
+4. If invalid → sets `EMAIL_ENTERED` cookie, redirects to `/auth/sign-up` with error
+5. Normalizes email (trim + lowercase)
+6. Adds email to `interestedEmail` table via `addInterestedEmail`
+7. If already in waitlist → redirects to `/auth/sign-in` with waitlist message
+8. Otherwise → redirects to `/auth/sign-in` with success message
 
 ## Cross-references
 

@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Intercepts requests to `/api/auth/sign-in/email` to convert better-auth's JSON responses into user-friendly redirects with flash messages. Handles unverified sign-ins, invalid credentials, rate limits, and other error states.
+Intercepts `POST` requests to the better-auth sign-in email API endpoint to convert JSON responses into user-friendly redirects with flash messages. Handles unverified sign-ins, invalid credentials, and other error states.
 
 ## Export
 
@@ -14,17 +14,19 @@ Intercepts `POST /api/auth/sign-in/email`.
 
 ### Sign-in flow
 
-1. Parses the request body to capture `signInEmail`
-2. Calls the original handler
-3. If the response is JSON:
-   - **`token: null, user: { emailVerified: false }`** — user is unverified → sets `EMAIL_ENTERED` cookie and redirects to `/auth/await-verification` with `'Please verify your email before signing in.'`
-   - **`error.code === 'EMAIL_NOT_FOUND'` or `code === 'INVALID_PASSWORD'`** — redirects to `/auth/sign-in` with `'Invalid email or password. Please try again.'`
-   - **`error.code === 'ACCOUNT_NOT_FOUND'`** — redirects to `/auth/sign-in` with `'Account not found. Please sign up first.'`
-   - **`error.code === 'RATE_LIMITED'`** — redirects to `/auth/sign-in` with `'Too many sign-in attempts. Please try again later.'`
-   - **`error.code === 'UNVERIFIED_EMAIL'`** — same unverified redirect as above
-   - **`error.code === 'EMAIL_TAKEN'`** — redirects to `/auth/sign-in` with `'This email is already registered.'`
-   - **Other JSON errors** — redirects to `/auth/sign-in` with `'An error occurred. Please try again.'`
-4. If the response is a 303 redirect (success), passes it through unchanged.
+1. `captureEmailMiddleware` runs first — parses form data to extract `email` and stores it as `signInEmail` in context
+2. `signInHandler` converts form data to JSON (for better-auth compatibility) and calls `auth.handler(jsonRequest)`
+3. If response status is 200 (success):
+   - Parses JSON to get `user` object
+   - If `user.emailVerified` is false and URL includes `/sign-up` → sets `EMAIL_ENTERED` cookie, redirects to `/auth/email-sent` with `'Account created! Please check your email to verify your account.'`
+   - If `user.emailVerified` is false (sign-in) → redirects to `/auth/sign-in` with `MESSAGES.VERIFY_EMAIL_BEFORE_SIGN_IN`
+   - If `user.emailVerified` is true → copies Set-Cookie headers from auth response, redirects to `/private` with `'Welcome! You have been signed in successfully.'`
+4. If response is an error:
+   - **401** → redirects to `/auth/sign-in` with `'Invalid email or password. Please check your credentials and try again.'`
+   - **403** → parses JSON for `error.code`; if `EMAIL_NOT_VERIFIED` and email captured → sets `EMAIL_ENTERED` cookie, redirects to `/auth/await-verification`; otherwise redirects to `/auth/sign-in` with verify message
+   - **400** → redirects to `/auth/sign-in` with `'Please check your email and password and try again.'`
+   - **500+** → redirects to `/auth/sign-in` with `MESSAGES.GENERIC_ERROR_TRY_AGAIN`
+5. Falls back to returning the original response if no handler matched
 
 ## Cross-references
 

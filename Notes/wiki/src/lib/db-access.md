@@ -10,7 +10,7 @@ Centralized database access layer. All DB queries are wrapped in retry logic and
 
 ### `UserWithAccountData`
 
-`{ userId, userName, userEmail, emailVerified, accountUpdatedAt }` — used for rate-limiting checks.
+`{ userId, userName, userEmail, emailVerified, accountUpdatedAt, lastResetEmailAt, lastVerificationEmailAt }` — used for rate-limiting checks.
 
 ### `UserIdData`
 
@@ -40,9 +40,17 @@ Left-joins `user` and `account` on `userId`, filters by `email`, limits to 1.
 
 Selects `id` from `user` where `email`, limits to 1.
 
-### `updateAccountTimestamp(db, userId): Promise<Result<boolean, Error>>`
+### `updateResetEmailTimestamp(db, userId): Promise<Result<boolean, Error>>`
 
-Sets `account.updatedAt = new Date()` for the given user.
+Sets `account.lastResetEmailAt = new Date()` for the given user's credential account.
+
+### `updateVerificationEmailTimestamp(db, userId): Promise<Result<boolean, Error>>`
+
+Sets `account.lastVerificationEmailAt = new Date()` for the given user's credential account.
+
+### `releaseSingleUseCode(db, code, email): Promise<Result<boolean, Error>>`
+
+Releases a previously claimed single-use code by setting `email` back to `null`, but only if it is still claimed by the given email. Returns `true` if exactly 1 row was updated.
 
 ### `claimSingleUseCode(db, code, email): Promise<Result<boolean, Error>>`
 

@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Combined sign-up page (`/auth/sign-up`). Only active in `BOTH_SIGN_UP` mode. Contains both the gated sign-up form (with code) and the interest/waitlist form on the same page.
+Combined sign-up page (`/auth/sign-up`). Active in `INTEREST_SIGN_UP` mode when gated codes are also available. Contains both the gated sign-up form (with code) and the interest/waitlist form on the same page.
 
 ## Export
 
@@ -19,11 +19,14 @@ Route: `GET /auth/sign-up`
 
 ### Page layout
 
-- **Gated sign-up** section with `<GatedSignUpForm />` — `data-testid='gated-signup-section'`
+- Card with `data-testid='sign-up-page-banner'`, title "Create Account"
+- Description text about having a sign-up code or joining the waitlist
+- **"Sign Up with Code"** section with `<GatedSignUpForm />` component
 - **Divider** (`OR`)
-- **Interest/waitlist** section:
+- **"Join the Waitlist"** section:
   - Email field — `data-testid='interest-email-input'`
-  - Submit button — `data-testid='interest-action'`
+  - Submit button — `data-testid='interest-action'` (text: "Join Waitlist")
+  - Form has `noValidate` set
 
 ### Navigation
 

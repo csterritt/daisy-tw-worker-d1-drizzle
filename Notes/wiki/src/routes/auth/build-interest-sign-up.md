@@ -17,6 +17,12 @@ Route: `GET /auth/interest-sign-up`
 1. Authenticated users are redirected to `/private` with `'You are already signed in.'`
 2. Renders the interest sign-up form
 
+### Page content
+
+- Card with `data-testid='sign-up-page-banner'`
+- Info alert with `data-testid='no-new-accounts-message'` explaining the waitlist
+- Form has `noValidate` set
+
 ### Form fields
 
 - **Email** — `type='email'`, `data-testid='interest-email-input'`

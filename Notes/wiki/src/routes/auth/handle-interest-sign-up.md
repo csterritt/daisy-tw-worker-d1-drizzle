@@ -12,12 +12,15 @@ POST handler for interest/waitlist sign-up (`POST /auth/interest-sign-up`). Only
 
 ### Flow
 
-1. Parses request body
-2. Validates email with `InterestSignUpFormSchema`
-3. If invalid → redirects to `/auth/interest-sign-up` with error
-4. Adds email to `interestedEmail` table via `addInterestedEmail`
-5. If already in waitlist → redirects with `'You are already on the waitlist.'`
-6. Otherwise → redirects with `'Thank you! You have been added to the waitlist.'`
+1. Checks if user is already signed in → redirects to `/private` with `MESSAGES.ALREADY_SIGNED_IN`
+2. Parses request body
+3. Validates email with `InterestSignUpFormSchema`
+4. If invalid → sets `EMAIL_ENTERED` cookie (if email present in body), redirects to `/auth/interest-sign-up` with error
+5. Normalizes email (trim + lowercase)
+6. Adds email to `interestedEmail` table via `addInterestedEmail`
+7. If DB error → sets `EMAIL_ENTERED` cookie, redirects to `/auth/interest-sign-up` with `'Sorry, there was an error processing your request. Please try again.'`
+8. If already in waitlist → redirects to `/auth/sign-in` with `'Thanks! Your email is already on our waitlist. We\'ll notify you when we\'re accepting new accounts.'`
+9. Otherwise → redirects to `/auth/sign-in` with `'Thanks! You\'ve been added to our waitlist. We\'ll notify you when we start accepting new accounts.'`
 
 ## Cross-references
 

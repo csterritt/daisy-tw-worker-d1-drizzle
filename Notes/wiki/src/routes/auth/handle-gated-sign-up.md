@@ -14,10 +14,9 @@ POST handler for gated sign-up (`POST /auth/sign-up`). Only active in `GATED_SIG
 
 1. Parses request body
 2. Validates with `GatedSignUpFormSchema`
-3. If invalid → redirects with error
-4. Claims the single-use code via `claimSingleUseCode`
-5. If code is already used → redirect with error
-6. Calls `processGatedSignUp` from `sign-up-utils.ts` to complete registration
+3. If invalid → redirects to `/auth/sign-up` with error
+4. Delegates to `processGatedSignUp` from `sign-up-utils.ts` which handles code claiming, user existence check, sign-up API call, timestamp update, and redirect
+5. On error → redirects to `/auth/sign-up` with `MESSAGES.REGISTRATION_GENERIC_ERROR`
 
 ## Cross-references
 

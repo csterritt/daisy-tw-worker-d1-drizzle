@@ -16,14 +16,15 @@ Handles email verification token callback (`/auth/verify-email`) and shows a con
 2. Validates `callbackUrl` via `validateCallbackUrl`
 3. If no token → renders failure page
 4. Calls `auth.api.verifyEmail({ query: { token, callbackURL } })`
-5. On success → renders `alert-success` with "Email Confirmed!" and a "Sign In Now" button
-6. On failure/invalid token → renders `alert-error` with "Confirmation Failed"
+5. On success → renders `alert-success` with `data-testid='email-confirmation-page'`, "Email Confirmed!" and a "Sign In Now" button (`data-testid='sign-in-after-confirmation'`)
+6. On failure/invalid token → renders `alert-error` with `data-testid='email-confirmation-page'`, "Confirmation Failed" and a "Back to Sign In" button (`data-testid='back-to-sign-in'`)
 
 ### `GET /auth/email-sent`
 
 1. Reads `EMAIL_ENTERED` cookie
 2. If no cookie → redirects to `/auth/sign-in` with `'Please sign up to continue.'`
-3. Renders a page confirming the email was sent with a "Back to Sign In" button
+3. Removes the `EMAIL_ENTERED` cookie after reading
+4. Renders a page with `data-testid='email-sent-page'` confirming the email was sent, with a "Back to Sign In" button (`data-testid='back-to-sign-in-from-sent'`)
 
 ## Cross-references
 

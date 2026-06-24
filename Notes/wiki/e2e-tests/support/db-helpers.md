@@ -8,19 +8,27 @@ Database manipulation helpers for E2E tests. Calls the dev-only test endpoints a
 
 ## Exports
 
-### `clearDatabase(): Promise<void>`
+### `clearDatabase(request?): Promise<void>`
 
-DELETE `/test/database/clear` — truncates all auth-related tables.
+DELETE `/test/database/clear` — truncates all auth-related tables. Accepts optional Playwright request context; falls back to `fetch` with `SERVER_BASE_URL`.
 
-### `clearSessions(): Promise<void>`
+### `clearSessions(request?): Promise<void>`
 
-DELETE `/test/database/clear-sessions` — removes all session rows.
+DELETE `/test/database/clear-sessions` — removes all session rows. Same request/fetch pattern.
 
-### `checkCodeExists(code): Promise<boolean>`
+### `setVerificationTimestamp(email, request?): Promise<void>`
+
+POST `/test/database/set-verification-timestamp/{email}` — sets `lastVerificationEmailAt` to now, starting the rate-limit cooldown.
+
+### `checkCodeExists(code, request?): Promise<boolean>`
 
 GET `/test/database/code-exists/{code}` — checks if a single-use code exists in the database.
 
-### `seedDatabase(): Promise<void>`
+### `clearRateLimitCache(request?): Promise<void>`
+
+DELETE `/test/database/clear-rate-limit-cache` — clears the in-memory password-reset rate-limit cache on the server.
+
+### `seedDatabase(request?): Promise<void>`
 
 POST `/test/database/seed` — seeds the database with test users, accounts, and single-use codes. Logs how many were created.
 

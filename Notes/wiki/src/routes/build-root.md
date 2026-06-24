@@ -12,9 +12,11 @@ Root page (`/`) — the public landing page for the application.
 
 Route: `GET /`
 
+Middleware: `secureHeaders(STANDARD_SECURE_HEADERS)`
+
 Renders:
 
-- Welcome card with title "Welcome!"
+- Welcome card with `data-testid='startup-page-banner'`, title "Welcome!"
 - Subtitle: "Worker, D1, Drizzle Project"
 - "Protected Content" button linking to `/private` — `data-testid='visit-private-action'`
 

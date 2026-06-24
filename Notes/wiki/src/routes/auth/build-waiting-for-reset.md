@@ -21,6 +21,7 @@ Route: `GET /auth/waiting-for-reset`
 
 ### Page content
 
+- Page with `data-testid='waiting-for-reset-page'`
 - "Check Your Email" alert showing the email address
 - "Back to Sign In" button (`data-testid='back-to-sign-in-from-waiting'`)
 - "Send Another Reset Link" button (`/auth/forgot-password`) (`data-testid='try-again-action'`)

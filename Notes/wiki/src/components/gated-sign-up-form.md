@@ -8,7 +8,8 @@ Reusable JSX component for the gated sign-up form fields. Shared between `build-
 
 ## Props
 
-- `emailEntered` — pre-filled email value (from `EMAIL_ENTERED` cookie)
+- `emailEntered` — pre-filled email value (from `EMAIL_ENTERED` cookie), defaults to `''`
+- `autoFocus` — whether the code field should auto-focus, defaults to `true`
 
 ## Fields
 
@@ -18,7 +19,7 @@ Reusable JSX component for the gated sign-up form fields. Shared between `build-
 - **Password** — `type='password'`, `name='password'`, `minLength=8`, `data-testid='gated-signup-password-input'`
 - **Submit** — `data-testid='gated-signup-action'`
 
-All fields have `required` and `autoFocus` on the first field.
+The form has `noValidate` set. All fields have `required`; the code field has `autoFocus` (controlled by the `autoFocus` prop).
 
 ## Cross-references
 

@@ -10,10 +10,11 @@ Mounts the Better Auth API handler (`/api/auth/*`) and sets up the session/user 
 
 ### `setupBetterAuth(app): void`
 
-Creates a sub-router at `/api/auth/*` that uses `toNextJsHandler` to bridge Better Auth to Hono. For every request it:
+Registers a catch-all route at `/api/auth/*` that:
 
 1. Calls `createAuth(c.env)` (fresh auth instance per request)
-2. Delegates to Better Auth's request handler
+2. Delegates to `auth.handler(c.req.raw)` — Better Auth's native request handler
+3. Returns 500 on error
 
 ### `setupBetterAuthMiddleware(app): void`
 
@@ -23,7 +24,7 @@ Global middleware that runs `auth.api.getSession()` on every request and injects
 - `session` — `session.session`
 - `authSession` — full `{ user, session }`
 
-Logs `set user to null` when no session exists.
+Sets `user`, `session`, and `authSession` to `null` when no session exists or on error.
 
 ## Cross-references
 

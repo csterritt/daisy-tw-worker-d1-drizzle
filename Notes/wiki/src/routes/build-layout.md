@@ -8,27 +8,27 @@ Layout wrapper used by every page builder. Wraps page content in a navbar, flash
 
 ## Exports
 
-### `useLayout(c, children)`
+### `useLayout(c, children, extraMessage?)`
+
+Reads `MESSAGE_FOUND` cookie (or uses `extraMessage` if provided) and `ERROR_FOUND` cookie, then removes them. Sets `Content-Type: text/html; charset=utf-8`.
 
 Returns a JSX fragment containing:
 
-1. **Navbar** — DaisyUI `navbar` with app title link and conditional nav items:
-   - `Home` (`/`)
-   - `Private` (`/private`) — only if user is authenticated
-   - `Profile` (`/profile`) — only if user is authenticated
-   - `Sign In` (`/auth/sign-in`) — only if user is NOT authenticated
-   - `Sign Out` (`/auth/sign-out`) — only if user is authenticated
+1. **Navbar** — DaisyUI `navbar` with:
+   - App title link (`/`) — "Worker, D1, Drizzle Demo"
+   - If NOT authenticated: "Sign in" button (`/auth/sign-in`) — `data-testid='sign-in-action'`
+   - If authenticated: welcome text ("Welcome, {name or email}!"), "Profile" link (`/profile`) — `data-testid='visit-profile-action'`, and a Sign out form (`POST /auth/sign-out`) with `data-testid='sign-out-action'`
 
-2. **Flash messages** — checks `MESSAGE_FOUND` and `ERROR_FOUND` cookies, renders `alert-success` or `alert-error` divs, then removes the cookies.
+2. **Flash messages** — renders `alert-success` div for message and `alert-error` div for error (with SVG icons), then removes the cookies.
 
-3. **Main content** — `<main className='container mx-auto px-4 py-8'>` with `{children}`
+3. **Main content** — `<main className='flex-1 container mx-auto px-4 py-8'>` with `{children}`
 
-4. **Footer** — simple footer with copyright text
+4. **Footer** — footer with copyright text including version: `Copyright © 2025 V-{version}`
 
 ## Cross-references
 
 - [lib/cookie-support.md](../lib/cookie-support.md) — `retrieveCookie`, `removeCookie`
-- [local-types.md](../local-types.md) — `AppContext`
+- [version.md](../version.md) — `version` used in footer
 
 ---
 

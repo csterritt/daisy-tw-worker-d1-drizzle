@@ -13,11 +13,14 @@ POST handler to resend verification email (`POST /auth/resend-email`). Active in
 ### Flow
 
 1. Parses request body for `email`
-2. Validates email with `EmailSchema`
-3. If invalid → redirects to `/auth/sign-in` with error
-4. Checks `EMAIL_RESEND_TIME_IN_MILLISECONDS` rate limit (stored in DB or via in-memory check)
-5. If rate limited → redirects with remaining time message
-6. Otherwise → triggers `auth.api.sendVerificationEmail` and redirects to `/auth/await-verification` with success message
+2. Validates with `ResendEmailFormSchema`
+3. If invalid → redirects to `/auth/await-verification` with error
+4. Looks up user via `getUserWithAccountByEmail` — if not found or DB error, redirects to await-verification with success message (security: don't reveal existence)
+5. If user is already verified → redirects to `/auth/sign-in` with `'Your email is already verified. You can sign in now.'`
+6. Checks rate limit using `lastVerificationEmailAt` from the account record vs `DURATIONS.EMAIL_RESEND_TIME_IN_MILLISECONDS`
+7. If rate limited → redirects to await-verification with remaining time message
+8. Otherwise → calls `auth.api.sendVerificationEmail` and updates `lastVerificationEmailAt` timestamp
+9. Redirects to `/auth/await-verification` with `MESSAGES.NEW_VERIFICATION_EMAIL`
 
 ## Cross-references
 
