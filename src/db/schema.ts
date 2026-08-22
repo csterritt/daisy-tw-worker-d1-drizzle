@@ -6,7 +6,7 @@
  * Database schema definition using Drizzle ORM
  * Updated to match better-auth requirements
  */
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
 
 /**
  * User table schema definition (better-auth compatible)
@@ -41,29 +41,34 @@ export const session = sqliteTable('session', {
  * Account table schema definition (for better-auth)
  * Stores authentication provider information and passwords
  */
-export const account = sqliteTable('account', {
-  id: text('id').primaryKey(),
-  userId: text('userId')
-    .notNull()
-    .references(() => user.id, { onDelete: 'cascade' }),
-  accountId: text('accountId').notNull(),
-  providerId: text('providerId').notNull(),
-  accessToken: text('accessToken'),
-  refreshToken: text('refreshToken'),
-  accessTokenExpiresAt: integer('accessTokenExpiresAt', { mode: 'timestamp' }),
-  refreshTokenExpiresAt: integer('refreshTokenExpiresAt', {
-    mode: 'timestamp',
-  }),
-  scope: text('scope'),
-  idToken: text('idToken'),
-  password: text('password'), // For email/password auth
-  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
-  // Dedicated rate-limit clocks, decoupled from updatedAt (which better-auth
-  // also writes) and from each other.
-  lastResetEmailAt: integer('lastResetEmailAt', { mode: 'timestamp' }),
-  lastVerificationEmailAt: integer('lastVerificationEmailAt', { mode: 'timestamp' }),
-})
+export const account = sqliteTable(
+  'account',
+  {
+    id: text('id').primaryKey(),
+    userId: text('userId')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    issuer: text('issuer').notNull(),
+    accountId: text('accountId').notNull(),
+    providerId: text('providerId').notNull(),
+    accessToken: text('accessToken'),
+    refreshToken: text('refreshToken'),
+    accessTokenExpiresAt: integer('accessTokenExpiresAt', { mode: 'timestamp' }),
+    refreshTokenExpiresAt: integer('refreshTokenExpiresAt', {
+      mode: 'timestamp',
+    }),
+    scope: text('scope'),
+    idToken: text('idToken'),
+    password: text('password'), // For email/password auth
+    createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
+    updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+    // Dedicated rate-limit clocks, decoupled from updatedAt (which better-auth
+    // also writes) and from each other.
+    lastResetEmailAt: integer('lastResetEmailAt', { mode: 'timestamp' }),
+    lastVerificationEmailAt: integer('lastVerificationEmailAt', { mode: 'timestamp' }),
+  },
+  (table) => [uniqueIndex('account_issuer_accountId_uidx').on(table.issuer, table.accountId)],
+)
 
 /**
  * Verification table schema definition (for better-auth)

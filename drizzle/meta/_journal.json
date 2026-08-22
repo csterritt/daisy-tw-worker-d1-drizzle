@@ -22,6 +22,13 @@
       "when": 1780856770343,
       "tag": "0002_dizzy_the_liberteens",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1787434532873,
+      "tag": "0003_panoramic_swarm",
+      "breakpoints": true
     }
   ]
 }

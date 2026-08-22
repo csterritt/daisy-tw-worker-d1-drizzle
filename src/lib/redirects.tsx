@@ -3,7 +3,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { Context } from 'hono'
-import { getCookie } from 'hono/cookie'
 
 import { COOKIES, HTML_STATUS } from '../constants'
 import { Bindings } from '../local-types'
@@ -46,9 +45,9 @@ export const redirectWithError = <E extends { Bindings: Bindings }>(
 ): Response => {
   const response = c.redirect(redirectUrl, HTML_STATUS.SEE_OTHER)
   const cookieOptions = Object.entries(COOKIES.STANDARD_COOKIE_OPTIONS)
-      .map(([key, value]) => `${key}=${value}`)
-      .join('; ')
-    const cookieValue = `${COOKIES.ERROR_FOUND}=${encodeURIComponent(errorMessage)}; ${cookieOptions}`
+    .map(([key, value]) => `${key}=${value}`)
+    .join('; ')
+  const cookieValue = `${COOKIES.ERROR_FOUND}=${encodeURIComponent(errorMessage)}; ${cookieOptions}`
   response.headers.append('Set-Cookie', cookieValue)
   return response
 }

@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS `account` (
 	`id` text PRIMARY KEY NOT NULL,
 	`userId` text NOT NULL,
+	`issuer` text NOT NULL,
 	`accountId` text NOT NULL,
 	`providerId` text NOT NULL,
 	`accessToken` text,
@@ -12,9 +13,12 @@ CREATE TABLE IF NOT EXISTS `account` (
 	`password` text,
 	`createdAt` integer NOT NULL,
 	`updatedAt` integer NOT NULL,
+	`lastResetEmailAt` integer,
+	`lastVerificationEmailAt` integer,
 	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS `account_issuer_accountId_uidx` ON `account` (`issuer`,`accountId`);--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS `interestedEmail` (
 	`email` text PRIMARY KEY NOT NULL
 );
@@ -34,7 +38,8 @@ CREATE TABLE IF NOT EXISTS `session` (
 --> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS `session_token_unique` ON `session` (`token`);--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS `singleUseCode` (
-	`code` text PRIMARY KEY NOT NULL
+	`code` text PRIMARY KEY NOT NULL,
+	`email` text
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS `user` (
