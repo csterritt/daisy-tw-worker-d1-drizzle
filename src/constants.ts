@@ -29,6 +29,8 @@ export const PATHS = {
     // Base path for Better Auth API
     API_BASE: '/api/auth',
 
+    SIGN_UP_EMAIL_API: '/api/auth/sign-up/email',
+
     // Auth email sign-in endpoint
     SIGN_IN_EMAIL_API: '/api/auth/sign-in/email',
 
@@ -158,7 +160,6 @@ export const DURATIONS = {
   EMAIL_RESEND_TIME_IN_MILLISECONDS: 3 * 1000, // PRODUCTION:REMOVE
   THIRTY_DAYS_IN_SECONDS: 60 * 60 * 24 * 30,
   ONE_DAY_IN_SECONDS: 60 * 60 * 24,
-  FIVE_MINUTES_IN_SECONDS: 60 * 5,
 }
 
 /**
