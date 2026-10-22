@@ -6,6 +6,12 @@ Standard sign in, and password reset via email routes are provided.
 There is a [sibling project](https://github.com/csterritt/worker-d1-drizzle) that is unstyled. It is functionally
 identical, just with minimal styling that can be removed by deleting two files, and their references.
 
+#### System atlas
+
+Explore the [interactive system atlas](https://csterritt.github.io/daisy-tw-worker-d1-drizzle/) — an
+isometric map of this codebase you can click through a chapter at a time. Its generated text twin is
+[`Notes/system-atlas/SYSTEM.md`](Notes/system-atlas/SYSTEM.md).
+
 #### Sign up modes
 
 The app can be configured to run in one of following four modes, by setting the `SIGN_UP_MODE`

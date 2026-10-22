@@ -26,8 +26,13 @@ every change to `data.mjs`; never edit generated files by hand.
 
 ## View
 
-Serve the folder and open the page (file:// can render as a static
-snapshot in some browsers):
+Published at <https://csterritt.github.io/daisy-tw-worker-d1-drizzle/> —
+`.github/workflows/atlas-pages.yml` rebuilds `atlas.html` from
+`data.mjs` and redeploys on every push to `main` that touches this
+folder.
+
+To view a local build, serve the folder and open the page (file:// can
+render as a static snapshot in some browsers):
 
 ```bash
 cd Notes/system-atlas && python3 -m http.server 8137

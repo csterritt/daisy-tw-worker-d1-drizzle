@@ -517,4 +517,4 @@ tests/                  bun unit tests
 
 ## How this file is maintained
 
-Generated from `Notes/system-atlas/atlas/data.mjs` by `bun Notes/system-atlas/atlas/build.mjs`, which also builds the interactive atlas (`atlas.html`, published at http://localhost:8137/atlas.html). Edit the data file, rebuild, republish — never edit this file by hand.
+Generated from `Notes/system-atlas/atlas/data.mjs` by `bun Notes/system-atlas/atlas/build.mjs`, which also builds the interactive atlas (`atlas.html`, published at https://csterritt.github.io/daisy-tw-worker-d1-drizzle/). Edit the data file, rebuild, republish — never edit this file by hand.

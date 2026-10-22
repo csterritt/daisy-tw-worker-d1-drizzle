@@ -3,7 +3,7 @@
 
 export const META = {
   title: 'Mini Auth',
-  artifactUrl: 'http://localhost:8137/atlas.html',
+  artifactUrl: 'https://csterritt.github.io/daisy-tw-worker-d1-drizzle/',
   sourcePath: 'Notes/system-atlas/atlas/data.mjs',
   buildCmd: 'bun Notes/system-atlas/atlas/build.mjs',
   stats: [
