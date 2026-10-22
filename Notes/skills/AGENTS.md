@@ -20,3 +20,4 @@ description: As an agent, how to use skills for the project.
 - `code-writing/styling-html-and-tsx` - You must read this when it is time to style HTML and TSX
 - `code-writing/typescript-rules` - You must read this when it is time to write typescript
 - `code-writing/web-behavior` - You must read this when it is time to write web code
+- `system-atlas` - You must read this when it is time to understand, refer to, or update the system atlas
